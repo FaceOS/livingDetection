@@ -1,0 +1,12 @@
+7767517
+10 10
+Input            data             0 1 data 0=26 1=26 2=3
+Convolution      conv2d_1         1 1 data conv2d_1 0=8 1=3 11=3 2=1 3=1 13=1 4=0 14=0 5=1 6=216
+ReLU             activation_1     1 1 conv2d_1 conv2d_1_activation_1
+Pooling          max_pooling2d_1  1 1 conv2d_1_activation_1 max_pooling2d_1 0=0 1=2 11=2 2=2 12=2 3=0 13=0 4=0
+Convolution      conv2d_2         1 1 max_pooling2d_1 conv2d_2 0=16 1=3 11=3 2=1 3=1 13=1 4=0 14=0 5=1 6=1152
+ReLU             activation_2     1 1 conv2d_2 conv2d_2_activation_2
+Pooling          max_pooling2d_2  1 1 conv2d_2_activation_2 max_pooling2d_2 0=0 1=2 11=2 2=2 12=2 3=0 13=0 4=0
+Convolution      conv2d_3         1 1 max_pooling2d_2 conv2d_3 0=32 1=5 11=5 2=1 3=1 13=1 4=0 14=0 5=1 6=12800
+InnerProduct     dense_1          1 1 conv2d_3 dense_1 0=2 1=1 2=64
+Softmax          activation_3     1 1 dense_1 activation_3 0=0

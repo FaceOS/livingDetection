@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    tools:context="com.renren.faceos.MainActivity">
+
+    <ImageView
+        android:id="@+id/face"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        tools:src="@mipmap/ic_launcher" />
+
+    <Button
+        android:id="@+id/living_check"
+        android:layout_width="163dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:text="活体验证" />
+
+
+    <LinearLayout
+        android:id="@+id/real_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/id_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="请输入身份证号" />
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="请输入姓名" />
+
+        <Button
+            android:id="@+id/real_check"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:text="实名验证（照片+姓名+身份证号）" />
+
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp"
+            android:gravity="center_horizontal"
+            android:layout_height="match_parent"
+            android:textSize="22sp"
+            android:textColor="@android:color/holo_red_dark"
+            tools:text="比对结果" />
+    </LinearLayout>
+
+</LinearLayout>

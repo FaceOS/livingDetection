@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">动作活体实名制验证</string>
+
+    <string name="title_activity_tracking">Tracking</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>

@@ -1,16 +1,13 @@
 package com.renren.faceos;
 
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -26,98 +23,27 @@ import com.alibaba.fastjson.JSONObject;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+import com.renren.faceos.entity.IdNamePhoto;
 import com.renren.faceos.utils.Base64Utils;
 import com.renren.faceos.utils.FaceUtils;
+import com.renren.faceos.utils.FileUtils;
+import com.renren.faceos.utils.PermissionsUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+public class MainActivity extends AppCompatActivity implements PermissionsUtil.IPermissionsCallback {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     Button livingCheck;
     ImageView imageView;
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.WRITE_EXTERNAL_STORAGE",
-            "android.permission.CAMERA"};
     EditText idCard;
     EditText name;
     LinearLayout realLayout;
     Bitmap cutFace;
     String url = "https://49.233.242.197:8313/CreditFunc/v2.1/IdNamePhotoCheck";
     TextView result;
-
-    public static void verifyStoragePermissions(Activity activity) {
-        try {
-            //检测是否有写的权限
-            int permission = ActivityCompat.checkSelfPermission(activity,
-                    "android.permission.WRITE_EXTERNAL_STORAGE");
-            if (permission != PackageManager.PERMISSION_GRANTED) {
-                // 没有写的权限，去申请写的权限，会弹出对话框
-                ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void copyFilesFromAssets(Context context, String oldPath, String newPath) {
-        try {
-            String[] fileNames = context.getAssets().list(oldPath);
-            if (fileNames.length > 0) {
-                // directory
-                File file = new File(newPath);
-                if (!file.mkdir()) {
-                    Log.d("mkdir", "can't make folder");
-
-                }
-//                    return false;                // copy recursively
-                for (String fileName : fileNames) {
-                    copyFilesFromAssets(context, oldPath + "/" + fileName,
-                            newPath + "/" + fileName);
-                }
-            } else {
-                // file
-                InputStream is = context.getAssets().open(oldPath);
-                FileOutputStream fos = new FileOutputStream(new File(newPath));
-                byte[] buffer = new byte[1024];
-                int byteCount;
-                while ((byteCount = is.read(buffer)) != -1) {
-                    fos.write(buffer, 0, byteCount);
-                }
-                fos.flush();
-                is.close();
-                fos.close();
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    void InitModelFiles() {
-
-        String assetPath = "faceos";
-        String sdcardPath = Environment.getExternalStorageDirectory()
-                + File.separator + assetPath;
-        copyFilesFromAssets(this, assetPath, sdcardPath);
-
-    }
-
+    PermissionsUtil request;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,9 +56,15 @@ public class MainActivity extends AppCompatActivity {
         name = findViewById(R.id.name);
         imageView = findViewById(R.id.face);
         result = findViewById(R.id.result);
-        verifyStoragePermissions(this);
-        InitModelFiles();
         realLayout.setVisibility(View.INVISIBLE);
+
+        request = PermissionsUtil
+                .with(this)
+                .requestCode(1)
+                .isDebug(true)//开启log
+                .permissions(PermissionsUtil.Permission.Storage.WRITE_EXTERNAL_STORAGE,
+                        PermissionsUtil.Permission.Camera.CAMERA)
+                .request();
 
         livingCheck.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,6 +118,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        request.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    }
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 0 && resultCode == 1) {
@@ -206,5 +146,20 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, String... permission) {
+        String assetPath = "faceos";
+        String sdcardPath = Environment.getExternalStorageDirectory()
+                + File.separator + assetPath;
+        FileUtils.copyFilesFromAssets(this, assetPath, sdcardPath);
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, String... permission) {
+        finish();
+    }
+
+
 }
 

@@ -1,4 +1,4 @@
-package com.renren.faceos;
+package com.renren.faceos.entity;
 
 public class IdNamePhoto {
 

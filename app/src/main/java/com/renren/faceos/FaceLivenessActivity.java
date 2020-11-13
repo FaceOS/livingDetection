@@ -1,7 +1,6 @@
 package com.renren.faceos;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -343,55 +342,50 @@ public class FaceLivenessActivity extends Activity implements
                     if (Math.abs(faceHeight - previewWidth) < round &&
                             Math.abs(faceWidth - previewHeight) < round) {
                         //判断人脸是否正脸
-                        if (faceRect.pitch > -10 && faceRect.pitch < 3 && faceRect.roll > -1 && faceRect.roll < 3) {
-                            if (live.size() > 0) {
-                                txt = "请" + live.get(0);
-                                takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                                switch (live.get(0)) {
-                                    case "张嘴":
-                                        if (faceRect.monthState == 1) {
-                                            live.remove("张嘴");
-                                            liveStartTime = System.currentTimeMillis();
-                                        }
-                                        break;
-                                    case "摇头":
-                                        if (faceRect.shakeState == 1) {
-                                            live.remove("摇头");
-                                        }
-                                        break;
-                                    case "眨眼":
-                                        if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
-                                            live.remove("眨眼");
-                                        }
-                                        break;
-                                    case "向左":
-                                        if (faceRect.yaw > 7) {
-                                            live.remove("向左");
-                                        }
-                                        break;
-                                    case "向右":
-                                        if (faceRect.yaw < -7) {
-                                            live.remove("向右");
-                                        }
-                                        break;
-                                    case "拍照":
-                                        takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                                        break;
-                                }
-                                mFaceDetectRoundView.setTipTopText(txt);
-                            } else {
-                                if (resultData != null) {
-                                    if (faceTracker != null) {
-                                        faceTracker.releaseSession();
-                                        faceTracker = null;
+                        if (live.size() > 0) {
+                            txt = "请" + live.get(0);
+                            takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
+                            switch (live.get(0)) {
+                                case "张嘴":
+                                    if (faceRect.monthState == 1) {
+                                        live.remove("张嘴");
+                                        liveStartTime = System.currentTimeMillis();
                                     }
-                                    finish();
-                                }
+                                    break;
+                                case "摇头":
+                                    if (faceRect.shakeState == 1) {
+                                        live.remove("摇头");
+                                    }
+                                    break;
+                                case "眨眼":
+                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
+                                        live.remove("眨眼");
+                                    }
+                                    break;
+                                case "向左":
+                                    if (faceRect.yaw > 7) {
+                                        live.remove("向左");
+                                    }
+                                    break;
+                                case "向右":
+                                    if (faceRect.yaw < -7) {
+                                        live.remove("向右");
+                                    }
+                                    break;
+                                case "拍照":
+                                    takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
+                                    break;
                             }
+                            mFaceDetectRoundView.setTipTopText(txt);
                         } else {
-                            mFaceDetectRoundView.setTipTopText("请保持正脸");
+                            if (resultData != null) {
+                                if (faceTracker != null) {
+                                    faceTracker.releaseSession();
+                                    faceTracker = null;
+                                }
+                                finish();
+                            }
                         }
-
                     } else {
                         mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
                     }

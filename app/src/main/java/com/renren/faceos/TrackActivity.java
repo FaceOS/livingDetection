@@ -4,6 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -26,6 +34,7 @@ import java.util.List;
 
 import com.renren.faceos.utils.FastYUVtoRGB;
 import com.renren.faceos.utils.FileUtils;
+
 import zeus.tracking.Face;
 import zeus.tracking.FaceTracking;
 
@@ -88,6 +97,8 @@ public class TrackActivity extends AppCompatActivity implements SurfaceHolder.Ca
         live.add("向右");
         live.add("拍照");
     }
+
+    TextureView textureView;
 
     private void opPreviewSize(int width, int height) {
 
@@ -201,12 +212,12 @@ public class TrackActivity extends AppCompatActivity implements SurfaceHolder.Ca
             try {
                 if (frame == 0) {
                     detection_state = 1;
-                    faceTracker.FaceTrackingInit(data, height, width);
+                    faceTracker.faceTrackingInit(data, height, width);
                     SystemClock.sleep(500);
                     detection_state = 0;
                 } else {
                     detection_state = 1;
-                    faceTracker.Update(data, height, width);
+                    faceTracker.update(data, height, width);
                     List<Face> trackingInfo = faceTracker.getTrackingInfo();
                     if (live.size() > 0) {
                         txt = "请" + live.get(0);
@@ -255,7 +266,7 @@ public class TrackActivity extends AppCompatActivity implements SurfaceHolder.Ca
                                     show.setText(txt);
                             }
                         });
-                        Log.e("TAG",txt);
+                        Log.e("TAG", txt);
                     } else {
                         if (resultData != null) {
                             releaseCamera();
@@ -277,10 +288,12 @@ public class TrackActivity extends AppCompatActivity implements SurfaceHolder.Ca
 
     }
 
+
+
     private void takePhoto(Face face, byte[] data) {
         //中心点偏移距离
         double distance = centerDistance(face);
-        if (resultData == null && distance < 5 && face.pitch > -10 && face.pitch < 3
+        if (resultData == null && distance < 0.3 && face.pitch > -10 && face.pitch < 3
                 && face.yaw > -1 && face.yaw < 3 && face.roll > -1 && face.roll < 3) {
             live.remove("拍照");
             resultData = data;

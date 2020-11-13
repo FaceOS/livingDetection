@@ -14,16 +14,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <com.renren.faceos.widget.FaceDetectRoundView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
-            android:visibility="gone"
-            android:layout_centerHorizontal="true"
             android:scaleType="centerCrop"
-            android:src="@drawable/mask" />
+            android:src="@drawable/mask"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/show"
@@ -32,6 +35,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="25dp"
             android:text="动作活体"
+            android:textColor="@color/black_overlay"
             android:textSize="24sp" />
     </RelativeLayout>
 

@@ -119,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         livingCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TrackActivity.class);
+                Intent intent = new Intent(MainActivity.this, FaceLivenessActivity.class);
                 startActivityForResult(intent, 0);
             }
         });
@@ -190,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 0 && resultCode == 1) {
+            Log.e(TAG, "resultCode" + resultCode);
             try {
                 String facePath = data.getStringExtra("facePath");
                 FileInputStream fis = new FileInputStream(facePath);
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                 cutFace = FaceUtils.faceCut(rotateBitmap, this);
                 imageView.setImageBitmap(cutFace);
                 realLayout.setVisibility(View.VISIBLE);
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

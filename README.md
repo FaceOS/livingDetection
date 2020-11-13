@@ -4,9 +4,9 @@
 动作活体+实名制三要素验证
 
 #### APK扫码下载
-![BsJ9n1.png](https://s1.ax1x.com/2020/11/03/BsJ9n1.png)
+![BsJ9n1.png](https://s3.ax1x.com/2020/11/13/DpCDN8.png)
 #### APK链接下载
-<a href="http://d.7short.com/mkcv" target="_blank">点击下载</a>
+<a href="http://d.firim.top/mkcv" target="_blank">点击下载</a>
 
 ### 接口文档
 

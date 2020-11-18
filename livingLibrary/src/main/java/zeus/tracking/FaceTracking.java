@@ -44,11 +44,11 @@ public class FaceTracking {
         releaseSession(session);
     }
 
-    public void FaceTrackingInit(byte[] data, int height, int width) {
+    public void faceTrackingInit(byte[] data, int height, int width) {
         initTracking(data, height, width, session);
     }
 
-    public void Update(byte[] data, int height, int width) {
+    public void update(byte[] data, int height, int width) {
         try {
             update(data, height, width, session);
             int numsFace = getTrackingNum(session);

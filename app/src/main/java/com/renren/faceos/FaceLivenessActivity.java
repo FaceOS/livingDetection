@@ -585,7 +585,6 @@ public class FaceLivenessActivity extends Activity implements
             sysRect = null;
             mFaceDetectRoundView.setTipSecondText("");
             mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
-            mSurfaceHolder.unlockCanvasAndPost(canvas);
             return;
         }
 

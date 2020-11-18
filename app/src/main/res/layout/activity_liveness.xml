@@ -7,7 +7,12 @@
     <FrameLayout
         android:id="@+id/detect_surface_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
+
+    <TextureView
+        android:id="@+id/textureView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <com.renren.faceos.widget.FaceDetectRoundView
         android:id="@+id/detect_face_round"

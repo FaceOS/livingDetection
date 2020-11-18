@@ -14,9 +14,7 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.hardware.camera.autofocus" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!-- 需要使用Feature -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- 需要使用Feature -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -39,8 +37,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".FaceLivenessActivity"
-            android:theme="@style/Theme_NoTitle">
-        </activity>
+            android:hardwareAccelerated="true"
+            android:theme="@style/Theme_NoTitle"/>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait">

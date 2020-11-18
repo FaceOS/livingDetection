@@ -4,19 +4,27 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -74,16 +82,15 @@ public class FaceLivenessActivity extends Activity implements
     protected int mPreviewDegree;
     private FaceTracking faceTracker;
     private List<String> live;
-    private int liveSize;
     private byte[] resultData;
-    private int round = 50;
 
     boolean initTrack;
     boolean detectionState;
     String txt;
     long liveStartTime;
     private TimeoutDialog mTimeoutDialog;
-
+    private TextureView textureView;
+    private int liveSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,10 +118,15 @@ public class FaceLivenessActivity extends Activity implements
         int w = mDisplayWidth;
         int h = mDisplayHeight;
 
-        FrameLayout.LayoutParams cameraFL = new FrameLayout.LayoutParams(
-                (int) (w * FaceDetectRoundView.SURFACE_RATIO), (int) (h * FaceDetectRoundView.SURFACE_RATIO),
-                Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+//        FrameLayout.LayoutParams cameraFL = new FrameLayout.LayoutParams(
+//                (int) (w * FaceDetectRoundView.SURFACE_RATIO), (int) (h * FaceDetectRoundView.SURFACE_RATIO),
+//                Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
 
+        Log.e(TAG, w + "  " + h);
+
+        FrameLayout.LayoutParams cameraFL = new FrameLayout.LayoutParams(
+                (int) (w), (int) (h),
+                Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         mSurfaceView.setLayoutParams(cameraFL);
         mFrameLayout.addView(mSurfaceView);
 
@@ -127,6 +139,9 @@ public class FaceLivenessActivity extends Activity implements
 
         mFaceDetectRoundView = findViewById(R.id.detect_face_round);
         mFaceDetectRoundView.setIsActiveLive(false);
+
+        textureView = findViewById(R.id.textureView);
+
     }
 
     private void initModel() {
@@ -135,12 +150,12 @@ public class FaceLivenessActivity extends Activity implements
 
         //选择活体动作
         live = new ArrayList<>();
+        live.add("正脸");
         live.add("张嘴");
 //        live.add("摇头");
 //        live.add("眨眼");
         live.add("向左");
         live.add("向右");
-        live.add("拍照");
         liveSize = live.size();
     }
 
@@ -156,6 +171,7 @@ public class FaceLivenessActivity extends Activity implements
     protected void onResume() {
         super.onResume();
         if (mFaceDetectRoundView != null) {
+            mFaceDetectRoundView.setTipSecondText("");
             mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
         }
         startPreview();
@@ -253,13 +269,20 @@ public class FaceLivenessActivity extends Activity implements
 
         mCameraParam.setPreviewSize(mPreviewWidth, mPreviewHeight);
         mCamera.setParameters(mCameraParam);
-
+        Log.e(TAG, mPreviewWidth + " size " + mPreviewHeight);
         try {
             mCamera.setPreviewDisplay(mSurfaceHolder);
             mCamera.stopPreview();
             mCamera.setErrorCallback(this);
             mCamera.setPreviewCallback(this);
             mCamera.startPreview();
+            mCamera.setFaceDetectionListener(new Camera.FaceDetectionListener() {
+                @Override
+                public void onFaceDetection(Camera.Face[] faces, Camera camera) {
+                    showFrame(faces);
+                }
+            });
+            mCamera.startFaceDetection();
         } catch (RuntimeException e) {
             e.printStackTrace();
             CameraUtils.releaseCamera(mCamera);
@@ -320,86 +343,108 @@ public class FaceLivenessActivity extends Activity implements
 
         if (!detectionState && faceTracker != null
                 && mFaceDetectRoundView != null && mFaceDetectRoundView.getRound() > 0) {
+            detectionState = true;
             if (!initTrack) {
-                detectionState = true;
                 //初始化人脸追踪
                 faceTracker.faceTrackingInit(data, mPreviewHeight, mPreviewWidth);
                 initTrack = true;
-                detectionState = false;
             } else {
-                detectionState = true;
                 //更新人脸数据
                 faceTracker.update(data, mPreviewHeight, mPreviewWidth);
                 List<Face> trackingInfo = faceTracker.getTrackingInfo();
                 if (trackingInfo.size() > 0) {
 //                  人脸位置
                     Face faceRect = trackingInfo.get(0);
-                    int previewWidth = mPreviewRect.right / 2;
-                    int previewHeight = mPreviewRect.bottom / 2;
-                    int faceWidth = (faceRect.left + faceRect.right) / 2;
-                    int faceHeight = (faceRect.top + faceRect.bottom) / 2;
-                    //判断人脸中心点
-                    if (Math.abs(faceHeight - previewWidth) < round &&
-                            Math.abs(faceWidth - previewHeight) < round) {
-                        //判断人脸是否正脸
-                        if (live.size() > 0) {
-                            txt = "请" + live.get(0);
-                            takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                            switch (live.get(0)) {
-                                case "张嘴":
-                                    if (faceRect.monthState == 1) {
-                                        live.remove("张嘴");
+
+//                    Log.e(TAG, "faceDetectRectRect" + faceDetectRectRect.toString());
+                    if (sysRect != null) {
+//                        Log.e(TAG, "sysRect" + sysRect.toString());
+                        int width = textureView.getWidth();
+                        int height = textureView.getHeight();
+                        //324
+                        float round = mFaceDetectRoundView.getRound();
+                        int faceHeight = (sysRect.top + sysRect.bottom);
+                        int faceWidth = (sysRect.left + sysRect.right);
+                        Log.e(TAG, "sysRect" + Math.abs(faceHeight - height) + "  " + Math.abs(faceWidth - width));
+
+//                        if (Math.abs(faceHeight - height) < 20 ||
+//                                Math.abs(faceWidth - width) < 20) {
+//                            mFaceDetectRoundView.setTipSecondText("");
+//                            mFaceDetectRoundView.setTipTopText("请将脸部离远一点");
+//                            detectionState = false;
+//                            return;
+//                        }
+                        //判断人脸中心点
+                        if (Math.abs(faceHeight - height) < round &&
+                                Math.abs(faceWidth - width) < round) {
+                            //判断人脸是否正脸
+                            if (live.size() > 0) {
+                                txt = "请" + live.get(0);
+                                switch (live.get(0)) {
+                                    case "正脸":
+                                        takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
                                         liveStartTime = System.currentTimeMillis();
-                                    }
-                                    break;
-                                case "摇头":
-                                    if (faceRect.shakeState == 1) {
-                                        live.remove("摇头");
-                                    }
-                                    break;
-                                case "眨眼":
-                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
-                                        live.remove("眨眼");
-                                    }
-                                    break;
-                                case "向左":
-                                    if (faceRect.yaw > 7) {
-                                        live.remove("向左");
-                                    }
-                                    break;
-                                case "向右":
-                                    if (faceRect.yaw < -7) {
-                                        live.remove("向右");
-                                    }
-                                    break;
-                                case "拍照":
-                                    takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                                    break;
-                            }
-                            mFaceDetectRoundView.setTipTopText(txt);
-                        } else {
-                            if (resultData != null) {
-                                if (faceTracker != null) {
-                                    faceTracker.releaseSession();
-                                    faceTracker = null;
+                                        break;
+                                    case "张嘴":
+                                        if (faceRect.monthState == 1) {
+                                            live.remove("张嘴");
+//
+                                        }
+                                        break;
+                                    case "摇头":
+                                        if (faceRect.shakeState == 1) {
+                                            live.remove("摇头");
+                                        }
+                                        break;
+                                    case "眨眼":
+                                        if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
+                                            live.remove("眨眼");
+                                        }
+                                        break;
+                                    case "向左":
+                                        if (faceRect.yaw > 7) {
+                                            live.remove("向左");
+                                        }
+                                        break;
+                                    case "向右":
+                                        if (faceRect.yaw < -7) {
+                                            live.remove("向右");
+                                        }
+                                        break;
+
                                 }
-                                finish();
+                                if (!txt.contains("正脸")) {
+                                    mFaceDetectRoundView.setTipSecondText("");
+                                    mFaceDetectRoundView.setTipTopText(txt);
+                                }
+                            } else {
+                                if (resultData != null) {
+                                    if (faceTracker != null) {
+                                        faceTracker.releaseSession();
+                                        faceTracker = null;
+                                    }
+                                    Intent intent = new Intent();
+                                    intent.putExtra("facePath", takePhotoFile.getAbsolutePath());
+                                    setResult(1, intent);
+                                    finish();
+                                }
                             }
+                        } else {
+                            mFaceDetectRoundView.setTipSecondText("");
+                            mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
                         }
                     } else {
+                        //无人脸
+                        mFaceDetectRoundView.setTipSecondText("");
                         mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
-                    }
-
-                } else {
-                    //无人脸
-                    mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
-                    //采集超时
-                    if (liveSize > live.size() && (System.currentTimeMillis() - liveStartTime > 10000)) {
-                        showMessageDialog();
+                        //采集超时
+                        if (liveSize > live.size() && (System.currentTimeMillis() - liveStartTime > 10000)) {
+                            showMessageDialog();
+                        }
                     }
                 }
-                detectionState = false;
             }
+            detectionState = false;
 
         }
     }
@@ -429,22 +474,42 @@ public class FaceLivenessActivity extends Activity implements
         finish();
     }
 
+    private File takePhotoFile;
+
     private void takePhoto(Face face, byte[] data, int width, int height) {
         try {
             //中心点偏移距离
-            double distance = centerDistance(face);
-            if (resultData == null && distance < 3 && face.pitch > -10 && face.pitch < 3
-                    && face.yaw > -1 && face.yaw < 3 && face.roll > -1 && face.roll < 3) {
-                live.remove("拍照");
+//            double distance = centerDistance(face);
+            Log.d("debug", "pitch " + face.pitch + "yaw " + face.yaw + "roll " + face.roll);
+
+            if (resultData == null && Math.abs(face.pitch) >= 0 && Math.abs(face.pitch) <= 3
+                    && Math.abs(face.yaw) >= 0 && Math.abs(face.yaw) <= 3) {
+                live.remove("正脸");
                 resultData = data;
                 FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(this);
                 Bitmap bitmap = fastYUVtoRGB.convertYUVtoRGB(data, width, height);
-                File file = File.createTempFile("face", null, this.getCacheDir());
+                takePhotoFile = File.createTempFile("face", null, this.getCacheDir());
 //                //保存人脸到SD卡
-                FileUtils.saveFile(file, bitmap);
-                Intent intent = new Intent();
-                intent.putExtra("facePath", file.getAbsolutePath());
-                setResult(1, intent);
+                FileUtils.saveFile(takePhotoFile, bitmap);
+            } else {
+                if (Math.abs(face.pitch) >= 3) {
+                    mFaceDetectRoundView.setTipSecondText("请缓慢低头");
+                    mFaceDetectRoundView.setTipTopText("");
+                    return;
+                }
+                if (face.yaw >= 3) {
+                    mFaceDetectRoundView.setTipSecondText("请缓慢向右转头");
+                    mFaceDetectRoundView.setTipTopText("");
+                    return;
+                }
+
+                if (face.yaw <= -3) {
+                    mFaceDetectRoundView.setTipSecondText("请缓慢向左转头");
+                    mFaceDetectRoundView.setTipTopText("");
+                    return;
+                }
+                mFaceDetectRoundView.setTipSecondText("");
+                mFaceDetectRoundView.setTipTopText("请保持正脸");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -492,5 +557,69 @@ public class FaceLivenessActivity extends Activity implements
             faceTracker.releaseSession();
             faceTracker = null;
         }
+    }
+
+    /**
+     * 人脸框绘制
+     *
+     * @param rrFaces
+     */
+
+    Paint paint;
+
+    {
+        paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(9);
+        paint.setColor(Color.WHITE);
+    }
+
+    Rect sysRect = null;
+
+    private void showFrame(Camera.Face[] faces) {
+        Canvas canvas = textureView.lockCanvas();
+        if (canvas == null) return;
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        if (faces.length < 1) {
+            // 清空canvas
+            sysRect = null;
+            mFaceDetectRoundView.setTipSecondText("");
+            mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
+            mSurfaceHolder.unlockCanvasAndPost(canvas);
+            return;
+        }
+
+        RectF rectF = new RectF(faces[0].rect);
+        int viewWidth = textureView.getWidth();
+        int viewHeight = textureView.getHeight();
+        Matrix matrix = new Matrix();
+
+//        这里使用的是后置摄像头就不用翻转。由于没有进行旋转角度的兼容，这里直接传系统调整的值
+        prepareMatrix(matrix, false, 270, viewWidth, viewHeight);
+        //坐标调整
+        matrix.mapRect(rectF);
+
+        //人脸翻转
+        float left = viewWidth - rectF.right;
+        float right = left + rectF.width();
+        rectF.left = left;
+        rectF.right = right;
+        canvas.drawRect(rectF, paint);
+
+        sysRect = new Rect((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
+        textureView.unlockCanvasAndPost(canvas);
+
+    }
+
+    public void prepareMatrix(Matrix matrix, boolean mirror, int displayOrientation,
+                              int viewWidth, int viewHeight) {
+        // Need mirror for front camera.
+        matrix.setScale(mirror ? -1 : 1, 1);
+        // This is the value for android.hardware.Camera.setDisplayOrientation.
+        matrix.postRotate(displayOrientation);
+        // Camera driver coordinates range from (-1000, -1000) to (1000, 1000).
+        // UI coordinates range from (0, 0) to (width, height)
+        matrix.postScale(viewWidth / 2000f, viewHeight / 2000f);
+        matrix.postTranslate(viewWidth / 2f, viewHeight / 2f);
     }
 }

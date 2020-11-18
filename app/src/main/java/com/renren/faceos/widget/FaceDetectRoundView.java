@@ -3,14 +3,17 @@ package com.renren.faceos.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.renren.faceos.utils.DensityUtils;
 
@@ -24,7 +27,7 @@ public class FaceDetectRoundView extends View {
 
     public static final float SURFACE_HEIGHT = 1000f;
     public static final float SURFACE_RATIO = 0.75f;
-    public static final float WIDTH_SPACE_RATIO = 0.33f;
+    public static final float WIDTH_SPACE_RATIO = 0.1f;
     public static final float HEIGHT_RATIO = 0.1f;
     public static final float HEIGHT_EXT_RATIO = 0.2f;
     // public static final int CIRCLE_SPACE = 5;
@@ -143,15 +146,25 @@ public class FaceDetectRoundView extends View {
         return mFaceRect;
     }
 
+    public Rect getFaceDetectRectRect() {
+        if (mFaceDetectRect != null) {
+            Log.e(TAG, mFaceDetectRect.toString());
+        }
+        return mFaceDetectRect;
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         float canvasWidth = right - left;
         float canvasHeight = bottom - top;
 
         float x = canvasWidth / 2;
-        float y = (canvasHeight / 2) - ((canvasHeight / 2) * HEIGHT_RATIO);
-        float r = (canvasWidth / 2) - ((canvasWidth / 2) * WIDTH_SPACE_RATIO);
+//        float y = (canvasHeight / 2) - ((canvasHeight / 2) * HEIGHT_RATIO);
+//        float r = (canvasWidth / 2) - ((canvasWidth / 2) * WIDTH_SPACE_RATIO);
 
+
+        float y = (canvasHeight / 2);
+        float r = (canvasWidth / 2) - ((canvasWidth / 2) * WIDTH_SPACE_RATIO);
         if (mFaceRect == null) {
             //left top right bottom
             mFaceRect = new Rect((int) (x - r),
@@ -159,6 +172,12 @@ public class FaceDetectRoundView extends View {
                     (int) (x + r),
                     (int) (y + r));
         }
+//        if (mFaceDetectRect == null) {
+//            float hr = r + (r * HEIGHT_EXT_RATIO);
+//            mFaceDetectRect = new Rect((int) (x - r),
+//                    (int) (y - hr),
+//                    (int) (x + r),
+//                    (int) (y + hr));
         if (mFaceDetectRect == null) {
             float hr = r + (r * HEIGHT_EXT_RATIO);
             mFaceDetectRect = new Rect((int) (x - r),

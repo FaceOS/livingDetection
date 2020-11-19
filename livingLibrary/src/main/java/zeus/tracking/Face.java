@@ -15,6 +15,9 @@ public class Face {
     public int bottom;
     public int height;
     public int width;
+    public int center_x;
+    public int center_y;
+
     public int[] landmarks;
     public int monthState;
     public int eyeState;
@@ -25,6 +28,7 @@ public class Face {
     public float roll;
 
 
+
     Face(int x1, int y1, int x2, int y2) {
         left = x1;
         top = y1;
@@ -32,6 +36,8 @@ public class Face {
         bottom = y2;
         height = y2 - y1;
         width = x2 - x1;
+        center_x = x1 + width/2;
+        center_y = y1 + height/2;
         landmarks = new int[106 * 2];
         monthState = 0;
         eyeState = 0;
@@ -44,6 +50,8 @@ public class Face {
         top = y1;
         right = x1 + _width;
         bottom = y1 + _height;
+        center_x = x1 + _width/2;
+        center_y = y1 + _height/2;
         width = _width;
         height = _height;
         landmarks = landmark;
@@ -59,6 +67,8 @@ public class Face {
         top = y1;
         right = x1 + _width;
         bottom = y1 + _height;
+        center_x = x1 + _width/2;
+        center_y = y1 + _height/2;
         width = _width;
         height = _height;
         ID = id;

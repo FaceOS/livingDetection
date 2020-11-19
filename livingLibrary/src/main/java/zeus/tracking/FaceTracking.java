@@ -1,5 +1,7 @@
 package zeus.tracking;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,8 @@ public class FaceTracking {
 
     private long session;
     private List<Face> faces;
+    public float ui_height;
+    public float ui_width;
 
     public FaceTracking(String pathModel) {
         session = createSession(pathModel);
@@ -44,11 +48,13 @@ public class FaceTracking {
         releaseSession(session);
     }
 
-    public void faceTrackingInit(byte[] data, int height, int width) {
+    public void FaceTrackingInit(byte[] data, int height, int width) {
         initTracking(data, height, width, session);
+        ui_height = height;
+        ui_width = width;
     }
 
-    public void update(byte[] data, int height, int width) {
+    public void Update(byte[] data, int height, int width) {
         try {
             update(data, height, width, session);
             int numsFace = getTrackingNum(session);
@@ -68,6 +74,7 @@ public class FaceTracking {
                 face.pitch = attitudes[0];
                 face.yaw = attitudes[1];
                 face.roll = attitudes[2];
+                Log.d("debug",  face.center_x/ui_width+ " , " + face.center_y/ui_height + " , " + face.width/ui_width  +" , " + face.height/ui_height);
                 //            Log.d("debug", "pitch " + face.pitch + "yaw " + face.yaw + "roll " + face.roll);
                 faces.add(face);
             }

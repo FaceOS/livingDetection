@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
         livingCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imageView.setImageBitmap(null);
+                realLayout.setVisibility(View.INVISIBLE);
                 Intent intent = new Intent(MainActivity.this, FaceLivenessActivity.class);
                 startActivityForResult(intent, 0);
             }
@@ -103,7 +105,9 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
                                     JSONObject jsonObject = JSON.parseObject(response.body().toString());
                                     String MESSAGE = jsonObject.getString("MESSAGE");
                                     int result1 = jsonObject.getIntValue("RESULT");
-                                    result.setText(MESSAGE);
+                                    JSONObject detail = jsonObject.getJSONObject("detail");
+                                    String resultMsg = detail.getString("resultMsg");
+                                    result.setText(MESSAGE + " " + resultMsg);
 
 
                                 }

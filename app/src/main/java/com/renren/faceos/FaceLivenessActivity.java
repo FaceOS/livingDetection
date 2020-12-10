@@ -171,7 +171,6 @@ public class FaceLivenessActivity extends Activity implements
     protected void onResume() {
         super.onResume();
         if (mFaceDetectRoundView != null) {
-            mFaceDetectRoundView.setTipSecondText("");
             mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
         }
         startPreview();
@@ -417,7 +416,6 @@ public class FaceLivenessActivity extends Activity implements
 
                             }
                             if (!txt.contains("正脸")) {
-                                mFaceDetectRoundView.setTipSecondText("");
                                 mFaceDetectRoundView.setTipTopText(txt);
                             }
                         } else {
@@ -433,12 +431,10 @@ public class FaceLivenessActivity extends Activity implements
                             }
                         }
                     } else {
-                        mFaceDetectRoundView.setTipSecondText("");
                         mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
                     }
                 } else {
                     //无人脸
-                    mFaceDetectRoundView.setTipSecondText("");
                     mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
                     //采集超时
                     if (liveSize > live.size() && (System.currentTimeMillis() - liveStartTime > 10000)) {
@@ -484,7 +480,7 @@ public class FaceLivenessActivity extends Activity implements
 //            double distance = centerDistance(face);
             Log.d("debug", "pitch " + face.pitch + "yaw " + face.yaw + "roll " + face.roll);
 
-            if (resultData == null && Math.abs(face.pitch) >= 0 && Math.abs(face.pitch) <= 3
+            if (resultData == null && centerDistance(face) <= 3 && Math.abs(face.pitch) >= 0 && Math.abs(face.pitch) <= 3
                     && Math.abs(face.yaw) >= 0 && Math.abs(face.yaw) <= 3) {
                 live.remove("正脸");
                 resultData = data;
@@ -495,23 +491,12 @@ public class FaceLivenessActivity extends Activity implements
                 FileUtils.saveFile(takePhotoFile, bitmap);
             } else {
                 if (Math.abs(face.pitch) >= 3) {
-                    mFaceDetectRoundView.setTipSecondText("请缓慢低头");
-                    mFaceDetectRoundView.setTipTopText("");
-                    return;
+                    mFaceDetectRoundView.setTipTopText("请缓慢低头");
+                } else if (face.yaw >= 3) {
+                    mFaceDetectRoundView.setTipTopText("请缓慢向右转头");
+                } else if (face.yaw <= -3) {
+                    mFaceDetectRoundView.setTipTopText("请缓慢向左转头");
                 }
-                if (face.yaw >= 3) {
-                    mFaceDetectRoundView.setTipSecondText("请缓慢向右转头");
-                    mFaceDetectRoundView.setTipTopText("");
-                    return;
-                }
-
-                if (face.yaw <= -3) {
-                    mFaceDetectRoundView.setTipSecondText("请缓慢向左转头");
-                    mFaceDetectRoundView.setTipTopText("");
-                    return;
-                }
-                mFaceDetectRoundView.setTipSecondText("");
-                mFaceDetectRoundView.setTipTopText("请保持正脸");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -585,7 +570,6 @@ public class FaceLivenessActivity extends Activity implements
         if (faces.length < 1) {
             // 清空canvas
             sysRect = null;
-            mFaceDetectRoundView.setTipSecondText("");
             mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
 //            mSurfaceHolder.unlockCanvasAndPost(canvas);
             return;

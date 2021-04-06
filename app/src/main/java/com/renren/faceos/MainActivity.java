@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,6 +25,9 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.renren.faceos.entity.IdNamePhoto;
+import com.renren.faceos.fragment.AuthFragment;
+import com.renren.faceos.fragment.DetectFragment;
+import com.renren.faceos.fragment.IdentityFragment;
 import com.renren.faceos.utils.Base64Utils;
 import com.renren.faceos.utils.FaceUtils;
 import com.renren.faceos.utils.FileUtils;
@@ -35,29 +39,23 @@ import java.io.FileInputStream;
 public class MainActivity extends AppCompatActivity implements PermissionsUtil.IPermissionsCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    Button livingCheck;
-    ImageView imageView;
-    EditText idCard;
-    EditText name;
-    LinearLayout realLayout;
-    Bitmap cutFace;
-    String url = "https://49.233.242.197:8313/CreditFunc/v2.1/IdNamePhotoCheck";
-    TextView result;
-    PermissionsUtil request;
+    private PermissionsUtil request;
+    private IdentityFragment identityFragment;
+    private DetectFragment detectFragment;
+    private AuthFragment authFragment;
+    private View line1;
+    private TextView step2;
+    private View line2;
+    private TextView step3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        livingCheck = (Button) findViewById(R.id.living_check);
-        final Button realCheck = findViewById(R.id.real_check);
-        realLayout = findViewById(R.id.real_layout);
-        idCard = findViewById(R.id.id_card);
-        name = findViewById(R.id.name);
-        imageView = findViewById(R.id.face);
-        result = findViewById(R.id.result);
-        realLayout.setVisibility(View.INVISIBLE);
-
+        line1 = findViewById(R.id.line_1);
+        step2 = findViewById(R.id.step_2);
+        line2 = findViewById(R.id.line_2);
+        step3 = findViewById(R.id.step_3);
         request = PermissionsUtil
                 .with(this)
                 .requestCode(1)
@@ -66,60 +64,113 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
                         PermissionsUtil.Permission.Camera.CAMERA)
                 .request();
 
-        livingCheck.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                imageView.setImageBitmap(null);
-                realLayout.setVisibility(View.INVISIBLE);
-                Intent intent = new Intent(MainActivity.this, FaceLivenessActivity.class);
-                startActivityForResult(intent, 0);
-            }
-        });
+//        initIdentityFragment();
+        initAuthFragment();
+//        livingCheck.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                imageView.setImageBitmap(null);
+//                realLayout.setVisibility(View.INVISIBLE);
+//                Intent intent = new Intent(MainActivity.this, FaceLivenessActivity.class);
+//                startActivityForResult(intent, 0);
+//            }
+//        });
 
-        realCheck.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String idCardStr = idCard.getText().toString();
-                String nameStr = name.getText().toString();
-
-                if (!TextUtils.isEmpty(idCardStr) && !TextUtils.isEmpty(nameStr)) {
-
-                    IdNamePhoto idNamePhoto = new IdNamePhoto();
-                    //替换自己的用户名
-                    idNamePhoto.setLoginName("innerTest");
-                    //替换自己的密码
-                    idNamePhoto.setPwd("innerRenRen");
-                    idNamePhoto.setServiceName("IdNamePhotoCheck");
-                    IdNamePhoto.ParamBean param = new IdNamePhoto.ParamBean();
-                    param.setName(nameStr);
-                    param.setIdCard(idCardStr);
-                    if (cutFace != null)
-                        param.setImage(Base64Utils.bitmapToBase64(cutFace));
-                    idNamePhoto.setParam(param);
-                    OkGo.<String>post(url)
-                            .upJson(JSON.toJSONString(idNamePhoto))
-                            .execute(new StringCallback() {
-                                @Override
-                                public void onSuccess(Response<String> response) {
-                                    Log.e("TAG11", response.body().toString());
-                                    JSONObject jsonObject = JSON.parseObject(response.body().toString());
-                                    String MESSAGE = jsonObject.getString("MESSAGE");
-                                    int result1 = jsonObject.getIntValue("RESULT");
-                                    JSONObject detail = jsonObject.getJSONObject("detail");
-                                    String resultMsg = detail.getString("resultMsg");
-                                    result.setText(MESSAGE + " " + resultMsg);
-
-
-                                }
-                            });
-
-                } else {
-                    Toast.makeText(MainActivity.this, "必填项不能为空", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+//        realCheck.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String idCardStr = idCard.getText().toString();
+//                String nameStr = name.getText().toString();
+//
+//                if (!TextUtils.isEmpty(idCardStr) && !TextUtils.isEmpty(nameStr)) {
+//
+//                    JSONObject jsonObject = new JSONObject();
+//                    jsonObject.put("CheckType", 2);
+//                    jsonObject.put("Name", nameStr);
+//                    jsonObject.put("CardNo", idCardStr);
+//
+//                    if (cutFace != null)
+//                        jsonObject.put("FaceBase64", Base64Utils.bitmapToBase64(cutFace));
+//                    OkGo.<String>post(url)
+//                            .upJson(JSON.toJSONString(jsonObject))
+//                            .execute(new StringCallback() {
+//                                @Override
+//                                public void onSuccess(Response<String> response) {
+//                                    Log.e("TAG11", response.body().toString());
+//                                    JSONObject jsonObject = JSON.parseObject(response.body().toString());
+//                                    String MESSAGE = jsonObject.getString("MESSAGE");
+//                                    int result1 = jsonObject.getIntValue("RESULT");
+//                                    JSONObject detail = jsonObject.getJSONObject("detail");
+//                                    String resultMsg = detail.getString("resultMsg");
+//                                    result.setText(MESSAGE + " " + resultMsg);
+//
+//
+//                                }
+//                            });
+//
+//                } else {
+//                    Toast.makeText(MainActivity.this, "必填项不能为空", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
 
     }
+
+    public void initIdentityFragment() {
+        line1.setBackgroundResource(R.color.line_gray);
+        step2.setBackgroundResource(R.mipmap.ic_round_gray);
+        line2.setBackgroundResource(R.color.line_gray);
+        step3.setBackgroundResource(R.mipmap.ic_round_gray);
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (identityFragment == null) {
+            identityFragment = new IdentityFragment();
+            ft.add(R.id.fragment, identityFragment);
+        }
+        hideFragment(ft);
+        ft.show(identityFragment);
+        ft.commit();
+    }
+
+    public void initDetectFragment() {
+        line1.setBackgroundResource(R.color.stepBlue);
+        step2.setBackgroundResource(R.mipmap.ic_round_blue);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (detectFragment == null) {
+            detectFragment = new DetectFragment();
+            ft.add(R.id.fragment, detectFragment);
+        }
+        hideFragment(ft);
+        ft.show(detectFragment);
+        ft.commit();
+    }
+
+    public void initAuthFragment() {
+        line2.setBackgroundResource(R.color.stepBlue);
+        step3.setBackgroundResource(R.mipmap.ic_round_blue);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (authFragment == null) {
+            authFragment = new AuthFragment();
+            ft.add(R.id.fragment, authFragment);
+        }
+        hideFragment(ft);
+        ft.show(authFragment);
+        ft.commit();
+    }
+
+    //隐藏所有的fragment
+    private void hideFragment(FragmentTransaction transaction) {
+        if (identityFragment != null) {
+            transaction.hide(identityFragment);
+        }
+        if (detectFragment != null) {
+            transaction.hide(detectFragment);
+        }
+        if (authFragment != null) {
+            transaction.hide(authFragment);
+        }
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -141,9 +192,9 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
                 // 图片旋转
                 Bitmap rotateBitmap = FaceUtils.bitmapRotation(bitmap, 270);
 //                // 人脸裁剪
-                cutFace = FaceUtils.faceCut(rotateBitmap, this);
-                imageView.setImageBitmap(cutFace);
-                realLayout.setVisibility(View.VISIBLE);
+//                cutFace = FaceUtils.faceCut(rotateBitmap, this);
+//                imageView.setImageBitmap(cutFace);
+//                realLayout.setVisibility(View.VISIBLE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -165,5 +216,8 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
     }
 
 
+    public void submit(View view) {
+        initDetectFragment();
+    }
 }
 

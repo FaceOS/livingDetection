@@ -9,6 +9,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -35,7 +36,7 @@ public class FaceDetectRoundView extends View {
     public static final int PATH_SMALL_SPACE = 12;
     public static final int CIRCLE_LINE_WIDTH = 3;
 
-    public static final int COLOR_BG = Color.parseColor("#FFFFFF");
+    public static final int COLOR_BG = Color.parseColor("#f2f2f2");
     // public static final int COLOR_RECT = Color.parseColor("#FFFFFF");
     public static final int COLOR_ROUND = Color.parseColor("#FFA800");
     public static final int COLOR_CIRCLE_LINE = Color.parseColor("#CCCCCC");
@@ -104,9 +105,10 @@ public class FaceDetectRoundView extends View {
         mTextSecondPaint.setDither(true);
 
         mTextTopPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTextTopPaint.setColor(Color.parseColor("#000000"));
-        mTextTopPaint.setTextSize(DensityUtils.dip2px(getContext(), 22));
+        mTextTopPaint.setColor(Color.parseColor("#316ffe"));
+        mTextTopPaint.setTextSize(DensityUtils.dip2px(getContext(), 18));
         mTextTopPaint.setTextAlign(Paint.Align.CENTER);
+        mTextTopPaint.setTypeface(Typeface.DEFAULT_BOLD);
         mTextTopPaint.setAntiAlias(true);
         mTextTopPaint.setDither(true);
     }

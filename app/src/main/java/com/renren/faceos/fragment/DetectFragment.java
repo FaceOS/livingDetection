@@ -1,6 +1,5 @@
-package com.renren.faceos;
+package com.renren.faceos.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,18 +16,25 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.renren.faceos.FaceLivenessActivity;
+import com.renren.faceos.MainActivity;
+import com.renren.faceos.R;
 import com.renren.faceos.utils.BrightnessUtils;
 import com.renren.faceos.utils.CameraPreviewUtils;
 import com.renren.faceos.utils.CameraUtils;
@@ -44,14 +50,13 @@ import java.util.List;
 import zeus.tracking.Face;
 import zeus.tracking.FaceTracking;
 
-public class FaceLivenessActivity extends Activity implements
+public class DetectFragment extends Fragment implements
         SurfaceHolder.Callback,
         Camera.PreviewCallback,
         Camera.ErrorCallback,
         TimeoutDialog.OnTimeoutDialogClickListener {
 
-    public static final String TAG = FaceLivenessActivity.class.getSimpleName();
-
+    public static final String TAG = DetectFragment.class.getSimpleName();
     // View
     protected View mRootView;
     protected FrameLayout mFrameLayout;
@@ -92,24 +97,24 @@ public class FaceLivenessActivity extends Activity implements
     private TextureView textureView;
     private int liveSize;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_detect, container, false);
         setScreenBright();
         //屏幕常亮
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_liveness);
-
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         initModel();
         DisplayMetrics dm = new DisplayMetrics();
-        Display display = this.getWindowManager().getDefaultDisplay();
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
         display.getMetrics(dm);
         mDisplayWidth = dm.widthPixels;
         mDisplayHeight = dm.heightPixels;
-        mRootView = findViewById(R.id.detect_root_layout);
-        mFrameLayout = findViewById(R.id.detect_surface_layout);
+        mRootView = view.findViewById(R.id.detect_root_layout);
+        mFrameLayout = view.findViewById(R.id.detect_surface_layout);
 
-        mSurfaceView = new SurfaceView(this);
+        mSurfaceView = new SurfaceView(getContext());
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.setSizeFromLayout();
         mSurfaceHolder.addCallback(this);
@@ -130,18 +135,17 @@ public class FaceLivenessActivity extends Activity implements
         mSurfaceView.setLayoutParams(cameraFL);
         mFrameLayout.addView(mSurfaceView);
 
-        findViewById(R.id.detect_close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
-        mFaceDetectRoundView = findViewById(R.id.detect_face_round);
+        mFaceDetectRoundView = view.findViewById(R.id.detect_face_round);
         mFaceDetectRoundView.setIsActiveLive(false);
 
-        textureView = findViewById(R.id.textureView);
+        textureView = view.findViewById(R.id.textureView);
+        return view;
+    }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mFaceDetectRoundView.setProcessCount(10,4);
     }
 
     private void initModel() {
@@ -157,18 +161,19 @@ public class FaceLivenessActivity extends Activity implements
         live.add("向左");
         live.add("向右");
         liveSize = live.size();
+
     }
 
     /**
      * 设置屏幕亮度
      */
     private void setScreenBright() {
-        int currentBright = BrightnessUtils.getScreenBrightness(this);
-        BrightnessUtils.setBrightness(this, currentBright + 100);
+        int currentBright = BrightnessUtils.getScreenBrightness(getActivity());
+        BrightnessUtils.setBrightness(getActivity(), currentBright + 100);
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if (mFaceDetectRoundView != null) {
             mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
@@ -253,7 +258,7 @@ public class FaceLivenessActivity extends Activity implements
         }
 
         mCameraParam.setPictureFormat(PixelFormat.JPEG);
-        int degree = displayOrientation(this);
+        int degree = displayOrientation(getContext());
         mCamera.setDisplayOrientation(degree);
         // 设置后无效，camera.setDisplayOrientation方法有效
         mCameraParam.set("rotation", degree);
@@ -428,8 +433,10 @@ public class FaceLivenessActivity extends Activity implements
                                 }
                                 Intent intent = new Intent();
                                 intent.putExtra("facePath", takePhotoFile.getAbsolutePath());
-                                setResult(1, intent);
-                                finish();
+//                                setResult(1, intent);
+//                                finish();
+                                ((MainActivity)getActivity()).initAuthFragment();
+                                stopPreview();
                             }
                         }
                     } else {
@@ -450,7 +457,7 @@ public class FaceLivenessActivity extends Activity implements
     }
 
     private void showMessageDialog() {
-        mTimeoutDialog = new TimeoutDialog(this);
+        mTimeoutDialog = new TimeoutDialog(getContext());
         mTimeoutDialog.setDialogListener(this);
         mTimeoutDialog.setCanceledOnTouchOutside(false);
         mTimeoutDialog.setCancelable(false);
@@ -471,7 +478,7 @@ public class FaceLivenessActivity extends Activity implements
         if (mTimeoutDialog != null) {
             mTimeoutDialog.dismiss();
         }
-        finish();
+//        finish();
     }
 
     private File takePhotoFile;
@@ -486,9 +493,9 @@ public class FaceLivenessActivity extends Activity implements
                     && Math.abs(face.yaw) >= 0 && Math.abs(face.yaw) <= 3 && face.eyeState == 0 && Math.abs(face.roll) >= 0 && Math.abs(face.roll) <= 3) {
                 live.remove("正脸");
                 resultData = data;
-                FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(this);
+                FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(getContext());
                 Bitmap bitmap = fastYUVtoRGB.convertYUVtoRGB(data, width, height);
-                takePhotoFile = File.createTempFile("face", null, this.getCacheDir());
+                takePhotoFile = File.createTempFile("face", null, getActivity().getCacheDir());
 //                //保存人脸到SD卡
                 FileUtils.saveFile(takePhotoFile, bitmap);
             } else {
@@ -496,8 +503,7 @@ public class FaceLivenessActivity extends Activity implements
                     mFaceDetectRoundView.setTipTopText("请缓慢向左调整，保持正脸");
                 } else if (face.roll <= -3) {
                     mFaceDetectRoundView.setTipTopText("请缓慢向右调整，保持正脸");
-                }
-                else if (Math.abs(face.pitch) >= 3) {
+                } else if (Math.abs(face.pitch) >= 3) {
                     mFaceDetectRoundView.setTipTopText("请缓慢低头");
                 } else if (face.yaw >= 0) {
                     mFaceDetectRoundView.setTipTopText("请缓慢向右转头");

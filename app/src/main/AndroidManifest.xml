@@ -35,10 +35,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".FaceLivenessActivity"
             android:hardwareAccelerated="true"
-            android:theme="@style/Theme_NoTitle"/>
+            android:theme="@style/Theme_NoTitle" />
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait">

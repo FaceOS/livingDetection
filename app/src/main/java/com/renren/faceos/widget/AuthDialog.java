@@ -55,7 +55,7 @@ public class AuthDialog extends Dialog implements View.OnClickListener {
         lp.width = DensityUtils.dip2px(getContext(), dp);
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         dialogWindow.setAttributes(lp);
-        authOut = (Button) view.findViewById(R.id.auth_out);
+        authOut = view.findViewById(R.id.auth_out);
         authDialogText = view.findViewById(R.id.auth_dialog_text);
         authDialogText.setText(text);
         authDialogImg = view.findViewById(R.id.auth_dialog_img);
@@ -69,13 +69,18 @@ public class AuthDialog extends Dialog implements View.OnClickListener {
     }
 
     public void setAuthDialogText(String text) {
-        this.text=text;
+        this.text = text;
+    }
+
+    public String getAuthDialogText() {
+        return authDialogText.getText().toString();
     }
 
     public void setAuthDialogImg(int resId) {
-        this.resId=resId;
+        this.resId = resId;
     }
-    public void setAuthOutText(String authOutText){
+
+    public void setAuthOutText(String authOutText) {
         this.authOutText = authOutText;
     }
 

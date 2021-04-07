@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="20dp"
+    android:gravity="center"
     android:layout_marginRight="20dp"
+    android:orientation="vertical"
     android:background="@drawable/bg_round_time_out">
-
-    <ImageView
-        android:id="@+id/image_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="38dp" />
 
     <TextView
         android:id="@+id/text_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/image_icon"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="人脸采集超时"
+        android:layout_marginTop="20dp"
+        android:text="活体采集"
         android:textColor="#000000"
         android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="采集超时"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
 
     <View
         android:id="@+id/view_line1"
@@ -39,11 +41,11 @@
         android:layout_below="@id/view_line1"
         android:background="#FFFFFF"
         android:paddingTop="15dp"
-        android:visibility="gone"
         android:paddingBottom="15dp"
         android:text="重新采集"
         android:textColor="#00BAF2"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:visibility="gone" />
 
     <View
         android:id="@+id/view_line2"
@@ -57,10 +59,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/view_line2"
-        android:background="#FFFFFF"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:text="回到首页"
-        android:textColor="#666666"
+        android:background="@drawable/bg_round_time_out_button"
+        android:text="确认"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="18sp" />
-</RelativeLayout>
+</LinearLayout>

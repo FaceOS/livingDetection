@@ -49,6 +49,7 @@
                 android:layout_height="35dp"
                 android:layout_marginLeft="20dp"
                 android:background="@null"
+                android:maxLines="10"
                 android:hint="请输入姓名"
                 android:textSize="15sp" />
         </LinearLayout>
@@ -79,6 +80,7 @@
                 android:layout_height="35dp"
                 android:layout_marginLeft="20dp"
                 android:background="@null"
+                android:maxLength="18"
                 android:hint="请输入身份证号"
                 android:textSize="15sp" />
         </LinearLayout>
@@ -90,7 +92,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_alignParentBottom="true"
-        android:onClick="submit"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="100dp"
         android:background="@drawable/bg_round_submit_button"

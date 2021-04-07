@@ -42,6 +42,7 @@
             android:theme="@style/Theme_NoTitle" />
         <activity
             android:name=".MainActivity"
+            android:hardwareAccelerated="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -43,7 +43,7 @@ public class TimeoutDialog extends Dialog implements View.OnClickListener {
         dialogWindow.setGravity(Gravity.CENTER_HORIZONTAL);
         WindowManager.LayoutParams lp = dialogWindow.getAttributes();
         int widthPx = DensityUtils.getDisplayWidth(getContext());
-        int dp = DensityUtils.px2dip(getContext(), widthPx) - 40;
+        int dp = DensityUtils.px2dip(getContext(), widthPx) - 100;
         lp.width = DensityUtils.dip2px(getContext(), dp);
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         dialogWindow.setAttributes(lp);

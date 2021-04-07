@@ -16,6 +16,7 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
@@ -92,11 +93,11 @@ public class DetectFragment extends Fragment implements
     boolean initTrack;
     boolean detectionState;
     String txt;
-    long liveStartTime;
+    long liveStartTime = System.currentTimeMillis();
     private TimeoutDialog mTimeoutDialog;
     private TextureView textureView;
     private int liveSize;
-
+    private boolean flag;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -136,7 +137,7 @@ public class DetectFragment extends Fragment implements
         mFrameLayout.addView(mSurfaceView);
 
         mFaceDetectRoundView = view.findViewById(R.id.detect_face_round);
-        mFaceDetectRoundView.setIsActiveLive(false);
+        mFaceDetectRoundView.setIsActiveLive(true);
 
         textureView = view.findViewById(R.id.textureView);
         return view;
@@ -145,7 +146,29 @@ public class DetectFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mFaceDetectRoundView.setProcessCount(10,4);
+        mFaceDetectRoundView.setProcessCount(0, live.size());
+        //计算活体采集超时
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    if (flag)
+                        break;
+                    SystemClock.sleep(1000);
+                    //采集超时
+                    if (System.currentTimeMillis() - liveStartTime > 30000) {
+                        if (getActivity() != null)
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showMessageDialog();
+                                }
+                            });
+                        break;
+                    }
+                }
+            }
+        }).start();
     }
 
     private void initModel() {
@@ -154,12 +177,11 @@ public class DetectFragment extends Fragment implements
 
         //选择活体动作
         live = new ArrayList<>();
-        live.add("正脸");
-        live.add("张嘴");
-        live.add("摇头");
-        live.add("眨眼");
-        live.add("向左");
-        live.add("向右");
+        live.add("张张嘴");
+        live.add("左右摇摇头");
+        live.add("眨眨眼");
+//        live.add("向左");
+//        live.add("向右");
         liveSize = live.size();
 
     }
@@ -359,84 +381,67 @@ public class DetectFragment extends Fragment implements
                 //faceTracker.update(data, mPreviewHeight, mPreviewWidth);
                 List<Face> trackingInfo = faceTracker.getTrackingInfo();
                 if (trackingInfo.size() > 0) {
+                    liveStartTime = System.currentTimeMillis();
 //                  人脸位置
                     Face faceRect = trackingInfo.get(0);
                     float faceCx = faceRect.center_x / faceTracker.ui_width;
                     float faceCy = faceRect.center_y / faceTracker.ui_height;
-                    float faceWidthRef = faceRect.center_x / faceTracker.ui_width;
-                    float faceHeightRef = faceRect.center_y / faceTracker.ui_height;
 
                     Log.e("debug", "pitch " + faceRect.pitch + "yaw " + faceRect.yaw + "roll " + faceRect.roll);
                     //Log.e(TAG, "faceDetectRectRect" + faceDetectRectRect.toString());
 //                    Log.e("face x", faceCx + "");
 //                    Log.e("face y", faceCy + "");
-//                    Log.e("faceWidthRef", faceWidthRef + "");
-                    //Log.d("faceWidthRef" , faceWidthRef+ "" );
 //                    Log.e("CenterJ", (Math.abs(faceCx - 0.5) < 0.1 && Math.abs(faceCy - 0.5) < 0.1 && faceWidthRef > 0.3) + "");
 
-
-//                    int width = textureView.getWidth();
-//                    int height = textureView.getHeight();
-//                        if (Math.abs(faceHeight - height) < 20 ||
-//                                Math.abs(faceWidth - width) < 20) {
-//                            mFaceDetectRoundView.setTipSecondText("");
-//                            mFaceDetectRoundView.setTipTopText("请将脸部离远一点");
-//                            detectionState = false;
-//                            return;
-//                        }
                     //判断人脸中心点
-                    if (Math.abs(faceCx - 0.5) < 0.2 && Math.abs(faceCy - 0.5) < 0.2) {
-                        //判断人脸是否正脸
+                    Log.e(TAG, Math.abs(faceCx - 0.5) + " X " + Math.abs(faceCy - 0.5) + " Y ");
+                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
                         if (live.size() > 0) {
                             txt = "请" + live.get(0);
                             switch (live.get(0)) {
-                                case "正脸":
-                                    takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                                    liveStartTime = System.currentTimeMillis();
-                                    break;
-                                case "张嘴":
+                                case "张张嘴":
                                     if (faceRect.monthState == 1) {
-                                        live.remove("张嘴");
-//
+                                        live.remove("张张嘴");
+                                        mFaceDetectRoundView.setProcessCount(1, liveSize);
                                     }
-                                    break;
-                                case "摇头":
-                                    if (faceRect.shakeState == 1) {
-                                        live.remove("摇头");
-                                    }
-                                    break;
-                                case "眨眼":
-                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
-                                        live.remove("眨眼");
-                                    }
-                                    break;
-                                case "向左":
-                                    if (faceRect.yaw > 7) {
-                                        live.remove("向左");
-                                    }
-                                    break;
-                                case "向右":
-                                    if (faceRect.yaw < -7) {
-                                        live.remove("向右");
-                                    }
-                                    break;
 
+                                    break;
+                                case "左右摇摇头":
+                                    if (faceRect.shakeState == 1) {
+                                        live.remove("左右摇摇头");
+                                        mFaceDetectRoundView.setProcessCount(2, liveSize);
+                                    }
+
+                                    break;
+                                case "眨眨眼":
+                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
+                                        live.remove("眨眨眼");
+                                        takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
+                                        mFaceDetectRoundView.setProcessCount(3, liveSize);
+                                    }
+
+                                    break;
+//                                case "向左":
+//                                    if (faceRect.yaw > 7) {
+//                                        live.remove("向左");
+//                                    }
+//                                    break;
+//                                case "向右":
+//                                    if (faceRect.yaw < -7) {
+//                                        live.remove("向右");
+//                                    }
+//                                    break;
                             }
-                            if (!txt.contains("正脸")) {
-                                mFaceDetectRoundView.setTipTopText(txt);
-                            }
+                            mFaceDetectRoundView.setTipTopText(txt);
                         } else {
                             if (resultData != null) {
                                 if (faceTracker != null) {
                                     faceTracker.releaseSession();
                                     faceTracker = null;
                                 }
-                                Intent intent = new Intent();
-                                intent.putExtra("facePath", takePhotoFile.getAbsolutePath());
-//                                setResult(1, intent);
-//                                finish();
-                                ((MainActivity)getActivity()).initAuthFragment();
+                                ((MainActivity) getActivity()).initAuthFragment();
                                 stopPreview();
+                                flag = true;
                             }
                         }
                     } else {
@@ -444,15 +449,10 @@ public class DetectFragment extends Fragment implements
                     }
                 } else {
                     //无人脸
-                    mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
-                    //采集超时
-                    if (liveSize > live.size() && (System.currentTimeMillis() - liveStartTime > 10000)) {
-                        showMessageDialog();
-                    }
+                    mFaceDetectRoundView.setTipTopText("未检测到人脸");
                 }
             }
             detectionState = false;
-
         }
     }
 
@@ -478,39 +478,19 @@ public class DetectFragment extends Fragment implements
         if (mTimeoutDialog != null) {
             mTimeoutDialog.dismiss();
         }
-//        finish();
+        ((MainActivity) getActivity()).initIdentityFragment();
     }
 
     private File takePhotoFile;
 
     private void takePhoto(Face face, byte[] data, int width, int height) {
         try {
-            //中心点偏移距离
-//            double distance = centerDistance(face);
-            Log.d("debug", "pitch " + face.pitch + "yaw " + face.yaw + "roll " + face.roll);
-
-            if (resultData == null && centerDistance(face) <= 3 && Math.abs(face.pitch) >= 0 && Math.abs(face.pitch) <= 3
-                    && Math.abs(face.yaw) >= 0 && Math.abs(face.yaw) <= 3 && face.eyeState == 0 && Math.abs(face.roll) >= 0 && Math.abs(face.roll) <= 3) {
-                live.remove("正脸");
-                resultData = data;
-                FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(getContext());
-                Bitmap bitmap = fastYUVtoRGB.convertYUVtoRGB(data, width, height);
-                takePhotoFile = File.createTempFile("face", null, getActivity().getCacheDir());
-//                //保存人脸到SD卡
-                FileUtils.saveFile(takePhotoFile, bitmap);
-            } else {
-                if (face.roll >= 3) {
-                    mFaceDetectRoundView.setTipTopText("请缓慢向左调整，保持正脸");
-                } else if (face.roll <= -3) {
-                    mFaceDetectRoundView.setTipTopText("请缓慢向右调整，保持正脸");
-                } else if (Math.abs(face.pitch) >= 3) {
-                    mFaceDetectRoundView.setTipTopText("请缓慢低头");
-                } else if (face.yaw >= 0) {
-                    mFaceDetectRoundView.setTipTopText("请缓慢向右转头");
-                } else if (face.yaw <= 3) {
-                    mFaceDetectRoundView.setTipTopText("请缓慢向左转头");
-                }
-            }
+            resultData = data;
+            FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(getContext());
+            ((MainActivity) getActivity()).faceData = fastYUVtoRGB.convertYUVtoRGB(data, width, height);
+//            takePhotoFile = File.createTempFile("face", null, getActivity().getCacheDir());
+////                //保存人脸到SD卡
+//            FileUtils.saveFile(takePhotoFile, bitmap);
         } catch (Exception e) {
             e.printStackTrace();
         }

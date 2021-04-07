@@ -47,6 +47,9 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
     private TextView step2;
     private View line2;
     private TextView step3;
+    public Bitmap faceData;
+    public String name;
+    public String idCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,55 +67,9 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
                         PermissionsUtil.Permission.Camera.CAMERA)
                 .request();
 
-//        initIdentityFragment();
-        initAuthFragment();
-//        livingCheck.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                imageView.setImageBitmap(null);
-//                realLayout.setVisibility(View.INVISIBLE);
-//                Intent intent = new Intent(MainActivity.this, FaceLivenessActivity.class);
-//                startActivityForResult(intent, 0);
-//            }
-//        });
-
-//        realCheck.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String idCardStr = idCard.getText().toString();
-//                String nameStr = name.getText().toString();
-//
-//                if (!TextUtils.isEmpty(idCardStr) && !TextUtils.isEmpty(nameStr)) {
-//
-//                    JSONObject jsonObject = new JSONObject();
-//                    jsonObject.put("CheckType", 2);
-//                    jsonObject.put("Name", nameStr);
-//                    jsonObject.put("CardNo", idCardStr);
-//
-//                    if (cutFace != null)
-//                        jsonObject.put("FaceBase64", Base64Utils.bitmapToBase64(cutFace));
-//                    OkGo.<String>post(url)
-//                            .upJson(JSON.toJSONString(jsonObject))
-//                            .execute(new StringCallback() {
-//                                @Override
-//                                public void onSuccess(Response<String> response) {
-//                                    Log.e("TAG11", response.body().toString());
-//                                    JSONObject jsonObject = JSON.parseObject(response.body().toString());
-//                                    String MESSAGE = jsonObject.getString("MESSAGE");
-//                                    int result1 = jsonObject.getIntValue("RESULT");
-//                                    JSONObject detail = jsonObject.getJSONObject("detail");
-//                                    String resultMsg = detail.getString("resultMsg");
-//                                    result.setText(MESSAGE + " " + resultMsg);
-//
-//
-//                                }
-//                            });
-//
-//                } else {
-//                    Toast.makeText(MainActivity.this, "必填项不能为空", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
+        initIdentityFragment();
+//        initAuthFragment();
+//        initDetectFragment();
 
     }
 
@@ -127,7 +84,14 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
             identityFragment = new IdentityFragment();
             ft.add(R.id.fragment, identityFragment);
         }
-        hideFragment(ft);
+        if (detectFragment != null) {
+            ft.remove(detectFragment);
+            detectFragment = null;
+        }
+        if (authFragment != null) {
+            ft.remove(authFragment);
+            authFragment = null;
+        }
         ft.show(identityFragment);
         ft.commit();
     }
@@ -140,7 +104,9 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
             detectFragment = new DetectFragment();
             ft.add(R.id.fragment, detectFragment);
         }
-        hideFragment(ft);
+        if (identityFragment != null) {
+            ft.hide(identityFragment);
+        }
         ft.show(detectFragment);
         ft.commit();
     }
@@ -153,22 +119,12 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
             authFragment = new AuthFragment();
             ft.add(R.id.fragment, authFragment);
         }
-        hideFragment(ft);
+        if (detectFragment != null) {
+            ft.remove(detectFragment);
+            detectFragment = null;
+        }
         ft.show(authFragment);
         ft.commit();
-    }
-
-    //隐藏所有的fragment
-    private void hideFragment(FragmentTransaction transaction) {
-        if (identityFragment != null) {
-            transaction.hide(identityFragment);
-        }
-        if (detectFragment != null) {
-            transaction.hide(detectFragment);
-        }
-        if (authFragment != null) {
-            transaction.hide(authFragment);
-        }
     }
 
 
@@ -179,28 +135,6 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
 
     }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 0 && resultCode == 1) {
-            Log.e(TAG, "resultCode" + resultCode);
-            try {
-                String facePath = data.getStringExtra("facePath");
-                FileInputStream fis = new FileInputStream(facePath);
-                Bitmap bitmap = BitmapFactory.decodeStream(fis);
-                // 图片旋转
-                Bitmap rotateBitmap = FaceUtils.bitmapRotation(bitmap, 270);
-//                // 人脸裁剪
-//                cutFace = FaceUtils.faceCut(rotateBitmap, this);
-//                imageView.setImageBitmap(cutFace);
-//                realLayout.setVisibility(View.VISIBLE);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
 
     @Override
     public void onPermissionsGranted(int requestCode, String... permission) {
@@ -215,9 +149,5 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
         finish();
     }
 
-
-    public void submit(View view) {
-        initDetectFragment();
-    }
 }
 

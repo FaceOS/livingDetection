@@ -28,7 +28,7 @@ public class FaceDetectRoundView extends View {
 
     public static final float SURFACE_HEIGHT = 1000f;
     public static final float SURFACE_RATIO = 0.75f;
-    public static final float WIDTH_SPACE_RATIO = 0.1f;
+    public static final float WIDTH_SPACE_RATIO = 0.25f;
     public static final float HEIGHT_RATIO = 0.1f;
     public static final float HEIGHT_EXT_RATIO = 0.2f;
     // public static final int CIRCLE_SPACE = 5;
@@ -204,7 +204,7 @@ public class FaceDetectRoundView extends View {
             canvas.drawText(mTipSecondText, mX, mY - mR - 40 - 25 - 59, mTextSecondPaint);
         }
         if (!TextUtils.isEmpty(mTipTopText)) {
-            canvas.drawText(mTipTopText, mX, mY - mR - 40 - 25 - 59 - 90, mTextTopPaint);
+            canvas.drawText(mTipTopText, mX, mY - mR - 40 - 25 - 59 - 40, mTextTopPaint);
         }
         if (mIsActiveLive) {
             canvas.translate(mX, mY);
@@ -230,7 +230,7 @@ public class FaceDetectRoundView extends View {
     // 画成功刻度线
     private void drawSuccessCircleLine(Canvas canvas) {
         int degree = (int) ((float) mSuccessActiveCount / (float) mTotalActiveCount * 360.0f);
-        // Log.e(TAG, "selectDegree = " + degree);
+//         Log.e(TAG, "selectDegree = " + degree);
         canvas.save();
         canvas.rotate(-90);
         for (int j = 0; j < degree; j += 6) {

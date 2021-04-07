@@ -38,8 +38,8 @@ public class IdentityFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        name.setText("彭佳新");
-        idCard.setText("140212199411210511");
+        name.setText("张三");
+        idCard.setText("110111111111111111");
         String nameStr = name.getText().toString();
         String idCardStr = idCard.getText().toString();
         if (TextUtils.isEmpty(nameStr)) {

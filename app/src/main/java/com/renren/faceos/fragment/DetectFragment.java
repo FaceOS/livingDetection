@@ -45,6 +45,7 @@ import com.renren.faceos.widget.FaceDetectRoundView;
 import com.renren.faceos.widget.TimeoutDialog;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -366,7 +367,15 @@ public class DetectFragment extends Fragment implements
         if (mIsCompletion) {
             return;
         }
-
+//        try {
+//            FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(getContext());
+//            Bitmap bitmap = fastYUVtoRGB.convertYUVtoRGB(data, mPreviewWidth, mPreviewHeight);
+//            File takePhotoFile = File.createTempFile("face", ".jpg", getActivity().getCacheDir());
+//            //保存人脸到SD卡
+//            FileUtils.saveFile(takePhotoFile, bitmap);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         if (!detectionState && faceTracker != null
                 && mFaceDetectRoundView != null && mFaceDetectRoundView.getRound() > 0) {
             detectionState = true;

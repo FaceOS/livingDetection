@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.renren.faceos.MainActivity;
 import com.renren.faceos.R;
+import com.renren.faceos.utils.CheckIdCard;
 
 public class IdentityFragment extends Fragment implements View.OnClickListener {
     EditText name;
@@ -38,8 +39,8 @@ public class IdentityFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        name.setText("张三");
-        idCard.setText("110111111111111111");
+//        name.setText("张三");
+//        idCard.setText("110111111111111111");
         String nameStr = name.getText().toString();
         String idCardStr = idCard.getText().toString();
         if (TextUtils.isEmpty(nameStr)) {
@@ -50,7 +51,7 @@ public class IdentityFragment extends Fragment implements View.OnClickListener {
             Toast.makeText(getContext(), "身份证号不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (idCardStr.length() < 18) {
+        if (!CheckIdCard.check(idCardStr)) {
             Toast.makeText(getContext(), "身份证号不正确", Toast.LENGTH_SHORT).show();
             return;
         }

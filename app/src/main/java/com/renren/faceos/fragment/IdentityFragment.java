@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +14,10 @@ import android.widget.Toast;
 
 import com.renren.faceos.MainActivity;
 import com.renren.faceos.R;
+import com.renren.faceos.base.BaseFragment;
 import com.renren.faceos.utils.CheckIdCard;
 
-public class IdentityFragment extends Fragment implements View.OnClickListener {
+public class IdentityFragment extends BaseFragment implements View.OnClickListener {
     EditText name;
     EditText idCard;
 
@@ -26,7 +28,9 @@ public class IdentityFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_identity, container, false);
         Button submit = view.findViewById(R.id.submit);
         name = view.findViewById(R.id.name);
+        String digists = "0123456789X";
         idCard = view.findViewById(R.id.id_card);
+        idCard.setKeyListener(DigitsKeyListener.getInstance(digists));
         submit.setOnClickListener(this);
         return view;
     }
@@ -39,8 +43,8 @@ public class IdentityFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-//        name.setText("张三");
-//        idCard.setText("110111111111111111");
+        name.setText("彭佳新");
+        idCard.setText("140212199411210511");
         String nameStr = name.getText().toString();
         String idCardStr = idCard.getText().toString();
         if (TextUtils.isEmpty(nameStr)) {
@@ -52,11 +56,11 @@ public class IdentityFragment extends Fragment implements View.OnClickListener {
             return;
         }
         if (!CheckIdCard.check(idCardStr)) {
-            Toast.makeText(getContext(), "身份证号不正确", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "请输入正确的身份证号", Toast.LENGTH_SHORT).show();
             return;
         }
-        ((MainActivity) getActivity()).name = nameStr;
-        ((MainActivity) getActivity()).idCard = idCardStr;
-        ((MainActivity) getActivity()).initDetectFragment();
+        getMainActivity().name = nameStr;
+        getMainActivity().idCard = idCardStr;
+        getMainActivity().initDetectFragment();
     }
 }

@@ -50,6 +50,7 @@
                 android:layout_marginLeft="20dp"
                 android:background="@null"
                 android:maxLines="10"
+                android:maxLength="15"
                 android:hint="请输入姓名"
                 android:textSize="15sp" />
         </LinearLayout>

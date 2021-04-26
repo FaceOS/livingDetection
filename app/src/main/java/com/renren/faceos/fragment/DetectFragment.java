@@ -36,6 +36,7 @@ import android.widget.FrameLayout;
 import com.renren.faceos.FaceLivenessActivity;
 import com.renren.faceos.MainActivity;
 import com.renren.faceos.R;
+import com.renren.faceos.base.BaseFragment;
 import com.renren.faceos.utils.BrightnessUtils;
 import com.renren.faceos.utils.CameraPreviewUtils;
 import com.renren.faceos.utils.CameraUtils;
@@ -46,13 +47,15 @@ import com.renren.faceos.widget.TimeoutDialog;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import zeus.tracking.Face;
 import zeus.tracking.FaceTracking;
 
-public class DetectFragment extends Fragment implements
+public class DetectFragment extends BaseFragment implements
         SurfaceHolder.Callback,
         Camera.PreviewCallback,
         Camera.ErrorCallback,
@@ -174,15 +177,13 @@ public class DetectFragment extends Fragment implements
 
     private void initModel() {
         String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        faceTracker = new FaceTracking(sdPath + "/faceos/models");
+        faceTracker = new FaceTracking(sdPath + "/faceos/models/model.bin");
 
         //选择活体动作
         live = new ArrayList<>();
         live.add("张张嘴");
         live.add("左右摇摇头");
         live.add("眨眨眼");
-//        live.add("向左");
-//        live.add("向右");
         liveSize = live.size();
 
     }
@@ -382,20 +383,19 @@ public class DetectFragment extends Fragment implements
             if (!initTrack) {
                 //初始化人脸追踪
                 faceTracker.FaceTrackingInit(data, mPreviewHeight, mPreviewWidth);
-                //faceTracker.FaceTrackingInit(data, mPreviewHeight, mPreviewWidth);
                 initTrack = true;
             } else {
                 //更新人脸数据
-                faceTracker.Update(data, mPreviewHeight, mPreviewWidth);
-                //faceTracker.update(data, mPreviewHeight, mPreviewWidth);
+                faceTracker.Update(data, mPreviewHeight, mPreviewWidth,true);
                 List<Face> trackingInfo = faceTracker.getTrackingInfo();
                 if (trackingInfo.size() > 0) {
                     liveStartTime = System.currentTimeMillis();
 //                  人脸位置
                     Face faceRect = trackingInfo.get(0);
-                    float faceCx = faceRect.center_x / faceTracker.ui_width;
-                    float faceCy = faceRect.center_y / faceTracker.ui_height;
-
+//                    float faceCx = faceRect.center_x / faceTracker.ui_width;
+//                    float faceCy = faceRect.center_y / faceTracker.ui_height;
+//                    float faceCx=1;
+//                    float faceCy=1;
                     Log.e("debug", "pitch " + faceRect.pitch + "yaw " + faceRect.yaw + "roll " + faceRect.roll);
                     //Log.e(TAG, "faceDetectRectRect" + faceDetectRectRect.toString());
 //                    Log.e("face x", faceCx + "");
@@ -403,64 +403,67 @@ public class DetectFragment extends Fragment implements
 //                    Log.e("CenterJ", (Math.abs(faceCx - 0.5) < 0.1 && Math.abs(faceCy - 0.5) < 0.1 && faceWidthRef > 0.3) + "");
 
                     //判断人脸中心点
-                    Log.e(TAG, Math.abs(faceCx - 0.5) + " X " + Math.abs(faceCy - 0.5) + " Y ");
-                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
-                        if (live.size() > 0) {
-                            txt = "请" + live.get(0);
-                            switch (live.get(0)) {
-                                case "张张嘴":
-                                    if (faceRect.monthState == 1) {
-                                        live.remove("张张嘴");
-                                        mFaceDetectRoundView.setProcessCount(1, liveSize);
-                                    }
-
-                                    break;
-                                case "左右摇摇头":
-                                    if (faceRect.shakeState == 1) {
-                                        live.remove("左右摇摇头");
-                                        mFaceDetectRoundView.setProcessCount(2, liveSize);
-                                    }
-
-                                    break;
-                                case "眨眨眼":
-                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
-                                        live.remove("眨眨眼");
-                                        takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                                        mFaceDetectRoundView.setProcessCount(3, liveSize);
-                                    }
-
-                                    break;
-//                                case "向左":
-//                                    if (faceRect.yaw > 7) {
-//                                        live.remove("向左");
-//                                    }
-//                                    break;
-//                                case "向右":
-//                                    if (faceRect.yaw < -7) {
-//                                        live.remove("向右");
-//                                    }
-//                                    break;
-                            }
-                            mFaceDetectRoundView.setTipTopText(txt);
-                        } else {
-                            if (resultData != null) {
-                                if (faceTracker != null) {
-                                    faceTracker.releaseSession();
-                                    faceTracker = null;
+//                    Log.e(TAG, Math.abs(faceCx - 0.5) + " X " + Math.abs(faceCy - 0.5) + " Y ");
+//                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
+                    if (live.size() > 0) {
+//                        Random random = new Random();
+//                        int index = random.nextInt(live.size() - 1);
+                        txt = "请" + live.get(0);
+                        switch (live.get(0)) {
+                            case "张张嘴":
+                                if (faceRect.mouthState == 1) {
+                                    live.remove("张张嘴");
+                                    mFaceDetectRoundView.setProcessCount(1, liveSize);
                                 }
-                                ((MainActivity) getActivity()).initAuthFragment();
-                                stopPreview();
-                                flag = true;
-                            }
+
+                                break;
+                            case "左右摇摇头":
+                                if (faceRect.shakeState == 1) {
+                                    live.remove("左右摇摇头");
+                                    mFaceDetectRoundView.setProcessCount(2, liveSize);
+                                }
+
+                                break;
+                            case "眨眨眼":
+                                if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
+                                    live.remove("眨眨眼");
+                                    takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
+                                    mFaceDetectRoundView.setProcessCount(3, liveSize);
+                                }
+
+                                break;
                         }
-                    } else {
-                        mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
+                        mFaceDetectRoundView.setTipTopText(txt);
                     }
+//                        else {
+//                            if (resultData != null) {
+//                                if (faceTracker != null) {
+////                                    faceTracker.releaseSession();
+//                                    faceTracker = null;
+//                                }
+//                                ((MainActivity) getActivity()).initAuthFragment();
+//                                stopPreview();
+//                                flag = true;
+//                            }
+//                        }
+//                    } else {
+//                        mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
+//                    }
                 } else {
                     //无人脸
                     mFaceDetectRoundView.setTipTopText("未检测到人脸");
                 }
+                trackingInfo.clear();
+                if (resultData != null) {
+                    if (faceTracker != null) {
+                        faceTracker = null;
+                    }
+                    getMainActivity().initAuthFragment();
+                    stopPreview();
+                    flag = true;
+                }
             }
+
             detectionState = false;
         }
     }
@@ -487,7 +490,7 @@ public class DetectFragment extends Fragment implements
         if (mTimeoutDialog != null) {
             mTimeoutDialog.dismiss();
         }
-        ((MainActivity) getActivity()).initIdentityFragment();
+        getMainActivity().initIdentityFragment();
     }
 
     private File takePhotoFile;
@@ -543,7 +546,7 @@ public class DetectFragment extends Fragment implements
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
         mIsCreateSurface = false;
         if (faceTracker != null) {
-            faceTracker.releaseSession();
+//            faceTracker.releaseSession();
             faceTracker = null;
         }
     }

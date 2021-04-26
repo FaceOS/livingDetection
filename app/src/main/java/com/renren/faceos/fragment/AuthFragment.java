@@ -21,6 +21,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.renren.faceos.MainActivity;
 import com.renren.faceos.R;
+import com.renren.faceos.base.BaseFragment;
 import com.renren.faceos.entity.IdNamePhoto;
 import com.renren.faceos.utils.Base64Utils;
 import com.renren.faceos.utils.FaceUtils;
@@ -28,7 +29,7 @@ import com.renren.faceos.utils.FastYUVtoRGB;
 import com.renren.faceos.widget.AuthDialog;
 import com.renren.faceos.widget.TimeoutDialog;
 
-public class AuthFragment extends Fragment implements AuthDialog.OnAuthDialogClickListener {
+public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialogClickListener {
 
     private AuthDialog authDialog;
     private String url = "https://49.233.242.197:8313/CreditFunc/v2.1/IdNamePhotoCheck";
@@ -50,12 +51,12 @@ public class AuthFragment extends Fragment implements AuthDialog.OnAuthDialogCli
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initAuthDialog();
-        Bitmap faceData = ((MainActivity) getActivity()).faceData;
-        String name = ((MainActivity) getActivity()).name;
-        String idCard = ((MainActivity) getActivity()).idCard;
+        Bitmap faceData = getMainActivity().faceData;
+        String name = getMainActivity().name;
+        String idCard = getMainActivity().idCard;
         IdNamePhoto idNamePhoto = new IdNamePhoto();
-        idNamePhoto.setLoginName("faceos");
-        idNamePhoto.setPwd("faceos");
+        idNamePhoto.setLoginName("DBHX");
+        idNamePhoto.setPwd("DBHX2020");
         idNamePhoto.setServiceName("IdNamePhotoCheck");
         IdNamePhoto.ParamBean paramBean = new IdNamePhoto.ParamBean();
         paramBean.setName(name);
@@ -73,9 +74,11 @@ public class AuthFragment extends Fragment implements AuthDialog.OnAuthDialogCli
                     public void onSuccess(Response<String> response) {
                         JSONObject jsonObject = JSON.parseObject(response.body());
                         int result = jsonObject.getIntValue("RESULT");
-                        if (result == 1) {
+                        JSONObject detail = jsonObject.getJSONObject("detail");
+                        int resultCode = detail.getIntValue("resultCode");
+                        if (result == 1 && resultCode==1001) {
                             authDialog.setAuthDialogText("认证成功");
-                            authDialog.setAuthOutText("确定");
+                            authDialog.setAuthOutText("完成");
                             authDialog.setAuthDialogImg(R.mipmap.ic_auth_success);
                         } else {
                             authDialog.setAuthDialogText("认证失败");
@@ -105,11 +108,9 @@ public class AuthFragment extends Fragment implements AuthDialog.OnAuthDialogCli
     public void onReturn() {
         String authDialogText = authDialog.getAuthDialogText();
         if (authDialogText.equals("认证成功")) {
-
         } else {
-
         }
-        ((MainActivity) getActivity()).initIdentityFragment();
+        getMainActivity().initIdentityFragment();
         authDialog.dismiss();
     }
 }

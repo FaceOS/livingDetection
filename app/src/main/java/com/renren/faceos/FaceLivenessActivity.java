@@ -41,8 +41,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import zeus.tracking.Face;
-import zeus.tracking.FaceTracking;
+import faceos.tracking.Face;
+import faceos.tracking.FaceTracking;
 
 public class FaceLivenessActivity extends Activity implements
         SurfaceHolder.Callback,

@@ -52,8 +52,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import zeus.tracking.Face;
-import zeus.tracking.FaceTracking;
+import faceos.tracking.Face;
+import faceos.tracking.FaceTracking;
 
 public class DetectFragment extends BaseFragment implements
         SurfaceHolder.Callback,

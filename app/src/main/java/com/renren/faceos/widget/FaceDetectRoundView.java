@@ -1,6 +1,8 @@
 package com.renren.faceos.widget;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -16,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.renren.faceos.R;
 import com.renren.faceos.utils.DensityUtils;
 
 
@@ -59,6 +62,7 @@ public class FaceDetectRoundView extends View {
     private boolean mIsActiveLive;
     private String mTipSecondText;
     private String mTipTopText;
+    private Bitmap liveSuccessBitmap;
 
     public FaceDetectRoundView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -111,6 +115,8 @@ public class FaceDetectRoundView extends View {
         mTextTopPaint.setTypeface(Typeface.DEFAULT_BOLD);
         mTextTopPaint.setAntiAlias(true);
         mTextTopPaint.setDither(true);
+
+        liveSuccessBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_face_live_finished);
     }
 
     public void setProcessCount(int successActiveCount, int totalActiveCount) {
@@ -206,6 +212,10 @@ public class FaceDetectRoundView extends View {
         if (!TextUtils.isEmpty(mTipTopText)) {
             canvas.drawText(mTipTopText, mX, mY - mR - 40 - 25 - 59 - 40, mTextTopPaint);
         }
+        if (mTipTopText.equals("非常好")) {
+            canvas.drawBitmap(liveSuccessBitmap, mX - 59 - 28, mY - mR - 40 - 25 - 59, mTextSecondPaint);
+        }
+
         if (mIsActiveLive) {
             canvas.translate(mX, mY);
             // 画默认进度

@@ -57,6 +57,7 @@ public class FaceTracking {
 //        Log.d("update_time", diff + "ms");
         int numsFace = getTrackingNum(session);
         for (int i = 0; i < numsFace; i++) {
+            int[] faceRect = getTrackingFaceActionByIndex(i, session);
             int id = getTrackingIDByIndex(i, session);
             float[] landmarks = getTrackingLandmarkByIndex(i, session);
             float[] attitudes = getEulerAngleByIndex(i, session);

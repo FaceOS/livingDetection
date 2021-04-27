@@ -102,6 +102,7 @@ public class DetectFragment extends BaseFragment implements
     private TextureView textureView;
     private int liveSize;
     private boolean flag;
+    private String[] action = {"张张嘴", "眨眨眼", "左右摇摇头"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -181,12 +182,26 @@ public class DetectFragment extends BaseFragment implements
 
         //选择活体动作
         live = new ArrayList<>();
-        live.add("张张嘴");
-        live.add("左右摇摇头");
-        live.add("眨眨眼");
+        //随机动作
+        Random random = new Random();
+        List<Integer> indexArray = new ArrayList<>();
+        while (indexArray.size() != 2) {
+            int index = random.nextInt(2);
+            if (!indexArray.contains(index))
+                indexArray.add(index);
+        }
+        for (Integer index : indexArray) {
+            live.add(action[index]);
+        }
+        live.add(action[2]);
+        for (String s : live) {
+            System.out.println(s + "==================");
+        }
+        Log.e("TAG", live.size() + "==================");
         liveSize = live.size();
 
     }
+
 
     /**
      * 设置屏幕亮度
@@ -379,14 +394,14 @@ public class DetectFragment extends BaseFragment implements
 //        }
         if (!detectionState && faceTracker != null
                 && mFaceDetectRoundView != null && mFaceDetectRoundView.getRound() > 0) {
-            detectionState = true;
+
             if (!initTrack) {
                 //初始化人脸追踪
                 faceTracker.FaceTrackingInit(data, mPreviewHeight, mPreviewWidth);
                 initTrack = true;
             } else {
                 //更新人脸数据
-                faceTracker.Update(data, mPreviewHeight, mPreviewWidth,true);
+                faceTracker.Update(data, mPreviewHeight, mPreviewWidth, true);
                 List<Face> trackingInfo = faceTracker.getTrackingInfo();
                 if (trackingInfo.size() > 0) {
                     liveStartTime = System.currentTimeMillis();
@@ -406,53 +421,49 @@ public class DetectFragment extends BaseFragment implements
 //                    Log.e(TAG, Math.abs(faceCx - 0.5) + " X " + Math.abs(faceCy - 0.5) + " Y ");
 //                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
                     if (live.size() > 0) {
-//                        Random random = new Random();
-//                        int index = random.nextInt(live.size() - 1);
+                        Random random = new Random();
                         txt = "请" + live.get(0);
+                        mFaceDetectRoundView.setTipTopText(txt);
                         switch (live.get(0)) {
                             case "张张嘴":
-                                if (faceRect.mouthState == 1) {
+                                if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
+                                    detectionState = true;
                                     live.remove("张张嘴");
-                                    mFaceDetectRoundView.setProcessCount(1, liveSize);
+                                    mFaceDetectRoundView.setTipTopText("非常好");
+                                    detectionStateSleep();
                                 }
 
                                 break;
                             case "左右摇摇头":
                                 if (faceRect.shakeState == 1) {
+                                    detectionState = true;
                                     live.remove("左右摇摇头");
-                                    mFaceDetectRoundView.setProcessCount(2, liveSize);
+                                    mFaceDetectRoundView.setTipTopText("非常好");
+                                    detectionStateSleep();
                                 }
 
                                 break;
                             case "眨眨眼":
                                 if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
+                                    detectionState = true;
                                     live.remove("眨眨眼");
-                                    takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                                    mFaceDetectRoundView.setProcessCount(3, liveSize);
+                                    mFaceDetectRoundView.setTipTopText("非常好");
+                                    detectionStateSleep();
                                 }
-
                                 break;
                         }
-                        mFaceDetectRoundView.setTipTopText(txt);
+                        mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
+                        if (live.size() == 0) {
+                            takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
+                        }
+
                     }
-//                        else {
-//                            if (resultData != null) {
-//                                if (faceTracker != null) {
-////                                    faceTracker.releaseSession();
-//                                    faceTracker = null;
-//                                }
-//                                ((MainActivity) getActivity()).initAuthFragment();
-//                                stopPreview();
-//                                flag = true;
-//                            }
-//                        }
-//                    } else {
-//                        mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
-//                    }
                 } else {
                     //无人脸
                     mFaceDetectRoundView.setTipTopText("未检测到人脸");
+
                 }
+
                 trackingInfo.clear();
                 if (resultData != null) {
                     if (faceTracker != null) {
@@ -463,9 +474,19 @@ public class DetectFragment extends BaseFragment implements
                     flag = true;
                 }
             }
+//            detectionState = false;
 
-            detectionState = false;
         }
+    }
+
+    private void detectionStateSleep() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(1000);
+                detectionState = false;
+            }
+        }).start();
     }
 
     private void showMessageDialog() {

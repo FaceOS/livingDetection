@@ -33,6 +33,7 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
 
     private AuthDialog authDialog;
     private String url = "https://49.233.242.197:8313/CreditFunc/v2.1/IdNamePhotoCheck";
+    private String faceImgUrl = "http://49.232.119.50:8181/openapi/facelivenessImg?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,6 +68,52 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
         Bitmap cutFace = FaceUtils.faceCut(rotateBitmap, getContext());
         paramBean.setImage(Base64Utils.bitmapToBase64(cutFace));
         idNamePhoto.setParam(paramBean);
+        facelivenessImg(idNamePhoto, cutFace);
+    }
+
+    private void facelivenessImg(final IdNamePhoto idNamePhoto, Bitmap cutFace) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("imageBase64", Base64Utils.bitmapToBase64(cutFace));
+        OkGo.<String>post(faceImgUrl)
+                .upJson(jsonObject.toJSONString())
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+
+                        JSONObject jsonObject = JSON.parseObject(response.body());
+                        int code = jsonObject.getIntValue("code");
+                        if (code == 0) {
+                            JSONObject data = jsonObject.getJSONObject("data");
+                            Float score = data.getFloat("score");
+                            if (score > 0.9) {
+                                //为活体
+                                nameIdCardAuth(idNamePhoto);
+                            } else {
+                                authDialog.setAuthDialogText("认证失败");
+                                authDialog.setAuthOutText("重新认证");
+                                authDialog.setAuthDialogImg(R.mipmap.ic_auth_fail);
+                                authDialog.show();
+                            }
+                        } else {
+                            authDialog.setAuthDialogText("认证失败");
+                            authDialog.setAuthOutText("重新认证");
+                            authDialog.setAuthDialogImg(R.mipmap.ic_auth_fail);
+                            authDialog.show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        authDialog.setAuthDialogText("认证失败");
+                        authDialog.setAuthOutText("重新认证");
+                        authDialog.setAuthDialogImg(R.mipmap.ic_auth_fail);
+                        authDialog.show();
+                    }
+                });
+    }
+
+    private void nameIdCardAuth(IdNamePhoto idNamePhoto) {
         OkGo.<String>post(url)
                 .upJson(JSON.toJSONString(idNamePhoto))
                 .execute(new StringCallback() {
@@ -76,7 +123,7 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
                         int result = jsonObject.getIntValue("RESULT");
                         JSONObject detail = jsonObject.getJSONObject("detail");
                         int resultCode = detail.getIntValue("resultCode");
-                        if (result == 1 && resultCode==1001) {
+                        if (result == 1 && resultCode == 1001) {
                             authDialog.setAuthDialogText("认证成功");
                             authDialog.setAuthOutText("完成");
                             authDialog.setAuthDialogImg(R.mipmap.ic_auth_success);
@@ -101,7 +148,6 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
                         authDialog.show();
                     }
                 });
-
     }
 
     @Override

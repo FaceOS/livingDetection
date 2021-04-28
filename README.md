@@ -2,10 +2,10 @@
 
 ## 介绍
 动作活体+实名制三要素验证</p>
-<img src="https://i.loli.net/2021/04/28/iETFYaWVChxMNsu.jpg" stryle="zoom:30%"  align=center />
+<img src="https://i.loli.net/2021/04/28/iETFYaWVChxMNsu.jpg" style="zoom:30%"  align=center />
 
 眨眨眼、张张嘴、摇摇头</p>
-<img src="https://i.loli.net/2021/04/28/9BIAbgziym34H2t.jpg" stryle="zoom:30%"  align=center />
+<img src="https://i.loli.net/2021/04/28/9BIAbgziym34H2t.jpg" style="zoom:30%"  align=center />
 
 #### APK扫码下载
 ![二维码图片_4月28日17时54分52秒.png](https://i.loli.net/2021/04/28/Y7incW8pOa9RCJG.png)

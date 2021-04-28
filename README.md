@@ -4,7 +4,7 @@
 动作活体+实名制三要素验证
 
 #### APK扫码下载
-![BsJ9n1.png](https://b1.sbimg.org/file/chevereto-jia/2020/11/19/QX5SN.png)
+![二维码图片_4月28日17时54分52秒.png](https://i.loli.net/2021/04/28/FgWpe7h3VkHszmO.png)
 #### APK链接下载
 <a href="http://d.firim.top/mkcv" target="_blank">点击下载</a>
 

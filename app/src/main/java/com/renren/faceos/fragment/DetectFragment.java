@@ -1,8 +1,6 @@
 package com.renren.faceos.fragment;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -18,7 +16,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -33,7 +30,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import com.renren.faceos.FaceLivenessActivity;
 import com.renren.faceos.MainActivity;
 import com.renren.faceos.R;
 import com.renren.faceos.base.BaseFragment;
@@ -41,13 +37,10 @@ import com.renren.faceos.utils.BrightnessUtils;
 import com.renren.faceos.utils.CameraPreviewUtils;
 import com.renren.faceos.utils.CameraUtils;
 import com.renren.faceos.utils.FastYUVtoRGB;
-import com.renren.faceos.utils.FileUtils;
 import com.renren.faceos.widget.FaceDetectRoundView;
 import com.renren.faceos.widget.TimeoutDialog;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

@@ -43,8 +43,8 @@ public class IdentityFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     public void onClick(View view) {
-        name.setText("彭佳新");
-        idCard.setText("140212199411210511");
+        name.setText("张大利");
+        idCard.setText("152221198906101419");
         String nameStr = name.getText().toString();
         String idCardStr = idCard.getText().toString();
         if (TextUtils.isEmpty(nameStr)) {

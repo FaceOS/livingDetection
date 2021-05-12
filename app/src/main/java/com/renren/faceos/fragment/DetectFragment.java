@@ -404,7 +404,7 @@ public class DetectFragment extends BaseFragment implements
 //                    float faceCy = faceRect.center_y / faceTracker.ui_height;
 //                    float faceCx=1;
 //                    float faceCy=1;
-                    Log.e("debug", "pitch " + faceRect.pitch + "yaw " + faceRect.yaw + "roll " + faceRect.roll);
+//                    Log.e("debug", mPreviewWidth + "  " + mPreviewHeight + "width " + faceRect.width + "height " + faceRect.height);
                     //Log.e(TAG, "faceDetectRectRect" + faceDetectRectRect.toString());
 //                    Log.e("face x", faceCx + "");
 //                    Log.e("face y", faceCy + "");
@@ -413,43 +413,47 @@ public class DetectFragment extends BaseFragment implements
                     //判断人脸中心点
 //                    Log.e(TAG, Math.abs(faceCx - 0.5) + " X " + Math.abs(faceCy - 0.5) + " Y ");
 //                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
-                    if (live.size() > 0) {
-                        Random random = new Random();
-                        txt = "请" + live.get(0);
-                        mFaceDetectRoundView.setTipTopText(txt);
-                        switch (live.get(0)) {
-                            case "张张嘴":
-                                if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
-                                    detectionState = true;
-                                    live.remove("张张嘴");
-                                    mFaceDetectRoundView.setTipTopText("非常好");
-                                    detectionStateSleep();
-                                }
+                    if (faceRect.width < 300 && faceRect.height < 300) {
+                        if (live.size() > 0) {
+                            Random random = new Random();
+                            txt = "请" + live.get(0);
+                            mFaceDetectRoundView.setTipTopText(txt);
+                            switch (live.get(0)) {
+                                case "张张嘴":
+                                    if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
+                                        detectionState = true;
+                                        live.remove("张张嘴");
+                                        mFaceDetectRoundView.setTipTopText("非常好");
+                                        detectionStateSleep();
+                                    }
 
-                                break;
-                            case "左右摇摇头":
-                                if (faceRect.shakeState == 1) {
-                                    detectionState = true;
-                                    live.remove("左右摇摇头");
-                                    mFaceDetectRoundView.setTipTopText("非常好");
-                                    detectionStateSleep();
-                                }
+                                    break;
+                                case "左右摇摇头":
+                                    if (faceRect.shakeState == 1) {
+                                        detectionState = true;
+                                        live.remove("左右摇摇头");
+                                        mFaceDetectRoundView.setTipTopText("非常好");
+                                        detectionStateSleep();
+                                    }
 
-                                break;
-                            case "眨眨眼":
-                                if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
-                                    detectionState = true;
-                                    live.remove("眨眨眼");
-                                    mFaceDetectRoundView.setTipTopText("非常好");
-                                    detectionStateSleep();
-                                }
-                                break;
+                                    break;
+                                case "眨眨眼":
+                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
+                                        detectionState = true;
+                                        live.remove("眨眨眼");
+                                        mFaceDetectRoundView.setTipTopText("非常好");
+                                        detectionStateSleep();
+                                    }
+                                    break;
+                            }
+                            mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
+                            if (live.size() == 0) {
+                                takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
+                            }
+
                         }
-                        mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
-                        if (live.size() == 0) {
-                            takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                        }
-
+                    } else {
+                        mFaceDetectRoundView.setTipTopText("请把手机拿远一点");
                     }
                 } else {
                     //无人脸

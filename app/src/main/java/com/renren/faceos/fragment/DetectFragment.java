@@ -95,7 +95,7 @@ public class DetectFragment extends BaseFragment implements
     private TextureView textureView;
     private int liveSize;
     private boolean flag;
-    private String[] action = {"张张嘴", "左右摇摇头", "眨眨眼"};
+    private String[] action = {"张张嘴", "眨眨眼"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -186,10 +186,10 @@ public class DetectFragment extends BaseFragment implements
         for (Integer index : indexArray) {
             live.add(action[index]);
         }
-        live.add(action[2]);
-        for (String s : live) {
-            System.out.println(s + "==================");
-        }
+//        live.add(action[2]);
+//        for (String s : live) {
+//            System.out.println(s + "==================");
+//        }
         Log.e("TAG", live.size() + "==================");
         liveSize = live.size();
 

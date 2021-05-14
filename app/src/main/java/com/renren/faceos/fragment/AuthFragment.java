@@ -57,11 +57,19 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
         Bitmap rotateBitmap = FaceUtils.bitmapRotation(faceData, 270);
         // 人脸裁剪
         Bitmap cutFace = FaceUtils.faceCut(rotateBitmap, getContext());
-        //图片压缩
-        Bitmap bitmap = BitmapZoomUtils.compressScale(cutFace);
-        paramBean.setImage(Base64Utils.bitmapToBase64(bitmap));
-        idNamePhoto.setParam(paramBean);
-        facelivenessImg(idNamePhoto, bitmap);
+        //这里图片可能是空的
+        if (cutFace != null) {
+            //图片压缩
+            Bitmap bitmap = BitmapZoomUtils.compressScale(cutFace);
+            paramBean.setImage(Base64Utils.bitmapToBase64(bitmap));
+            idNamePhoto.setParam(paramBean);
+            facelivenessImg(idNamePhoto, bitmap);
+        } else {
+            authDialog.setAuthDialogText("认证失败");
+            authDialog.setAuthOutText("重新认证");
+            authDialog.setAuthDialogImg(R.mipmap.ic_auth_fail);
+            authDialog.show();
+        }
     }
 
     private void facelivenessImg(final IdNamePhoto idNamePhoto, Bitmap cutFace) {

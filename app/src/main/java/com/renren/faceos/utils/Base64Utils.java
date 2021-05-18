@@ -20,7 +20,7 @@ public class Base64Utils {
         try {
             if (bitmap != null) {
                 baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
 
                 baos.flush();
                 baos.close();

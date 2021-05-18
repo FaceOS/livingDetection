@@ -13,9 +13,11 @@ import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -205,8 +207,6 @@ public class IdentityActivity extends AppCompatActivity implements PermissionsUt
 //                (int) (w * FaceDetectRoundView.SURFACE_RATIO), (int) (h * FaceDetectRoundView.SURFACE_RATIO),
 //                Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
 
-        Log.e(TAG, w + "  " + h);
-
         FrameLayout.LayoutParams cameraFL = new FrameLayout.LayoutParams(
                 (int) (w), (int) (h),
                 Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
@@ -273,7 +273,6 @@ public class IdentityActivity extends AppCompatActivity implements PermissionsUt
 //        for (String s : live) {
 //            System.out.println(s + "==================");
 //        }
-        Log.e("TAG", live.size() + "==================");
         liveSize = live.size();
     }
 
@@ -386,7 +385,7 @@ public class IdentityActivity extends AppCompatActivity implements PermissionsUt
 
         mCameraParam.setPreviewSize(mPreviewWidth, mPreviewHeight);
         mCamera.setParameters(mCameraParam);
-        Log.e(TAG, mPreviewWidth + " size " + mPreviewHeight);
+//        Log.e(TAG, mPreviewWidth + " size " + mPreviewHeight);
         try {
             mCamera.setPreviewDisplay(mSurfaceHolder);
             mCamera.stopPreview();
@@ -769,15 +768,13 @@ public class IdentityActivity extends AppCompatActivity implements PermissionsUt
 
 
     public void release() {
-        if (faceData != null) {
-            if (faceTracker != null) {
-                faceTracker.release();
-                faceTracker = null;
-            }
-            stopPreview();
-            flag = true;
-            finish();
+        if (faceTracker != null) {
+            faceTracker.release();
+            faceTracker = null;
         }
+        stopPreview();
+        flag = true;
+        finish();
     }
 
     @Override

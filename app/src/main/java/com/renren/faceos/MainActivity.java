@@ -63,8 +63,7 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
                 .with(this)
                 .requestCode(1)
                 .isDebug(true)//开启log
-                .permissions(PermissionsUtil.Permission.Storage.WRITE_EXTERNAL_STORAGE,
-                        PermissionsUtil.Permission.Camera.CAMERA)
+                .permissions(PermissionsUtil.Permission.Camera.CAMERA)
                 .request();
 
         initIdentityFragment();
@@ -139,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
     @Override
     public void onPermissionsGranted(int requestCode, String... permission) {
         String assetPath = "faceos";
-        String sdcardPath = Environment.getExternalStorageDirectory()
-                + File.separator + assetPath;
+        String sdcardPath = getFilesDir().getPath() + File.separator + assetPath;
         FileUtils.copyFilesFromAssets(this, assetPath, sdcardPath);
     }
 

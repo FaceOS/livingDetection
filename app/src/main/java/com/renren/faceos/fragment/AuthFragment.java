@@ -63,7 +63,7 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
             Bitmap bitmap = BitmapZoomUtils.compressScale(cutFace);
             paramBean.setImage(Base64Utils.bitmapToBase64(bitmap));
             idNamePhoto.setParam(paramBean);
-            facelivenessImg(idNamePhoto, bitmap);
+            facelivenessImg(idNamePhoto, Base64Utils.bitmapToBase64(cutFace));
         } else {
             authDialog.setAuthDialogText("认证失败");
             authDialog.setAuthOutText("重新认证");
@@ -72,9 +72,9 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
         }
     }
 
-    private void facelivenessImg(final IdNamePhoto idNamePhoto, Bitmap cutFace) {
+    private void facelivenessImg(final IdNamePhoto idNamePhoto, String imageBase64) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("imageBase64", Base64Utils.bitmapToBase64(cutFace));
+        jsonObject.put("imageBase64",imageBase64);
         OkGo.<String>post(faceImgUrl)
                 .upJson(jsonObject.toJSONString())
                 .execute(new StringCallback() {

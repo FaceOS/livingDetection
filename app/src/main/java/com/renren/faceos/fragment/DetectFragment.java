@@ -170,7 +170,7 @@ public class DetectFragment extends BaseFragment implements
     }
 
     private void initModel() {
-        String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String sdPath = getMainActivity().getFilesDir().getPath();
         faceTracker = new FaceTracking(sdPath + "/faceos/models/model.bin");
 
         //选择活体动作

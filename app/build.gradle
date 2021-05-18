@@ -33,5 +33,5 @@ dependencies {
 //    embed ('com.lzy.net:okgo:3.0.4'){
 //        transitive = true
 //    }
-    embed 'com.alibaba:fastjson:1.1.72.android'
+    implementation 'com.alibaba:fastjson:1.1.72.android'
 }

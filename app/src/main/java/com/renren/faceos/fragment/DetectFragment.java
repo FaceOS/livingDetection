@@ -95,7 +95,7 @@ public class DetectFragment extends BaseFragment implements
     private TextureView textureView;
     private int liveSize;
     private boolean flag;
-    private String[] action = {"张张嘴",  "眨眨眼"};
+    private String[] action = {"张张嘴", "眨眨眼"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -186,7 +186,7 @@ public class DetectFragment extends BaseFragment implements
         for (Integer index : indexArray) {
             live.add(action[index]);
         }
-        live.add(1,"左右摇摇头");
+        live.add(1, "左右摇摇头");
 //        for (String s : live) {
 //            System.out.println(s + "==================");
 //        }
@@ -413,7 +413,10 @@ public class DetectFragment extends BaseFragment implements
                     //判断人脸中心点
 //                    Log.e(TAG, Math.abs(faceCx - 0.5) + " X " + Math.abs(faceCy - 0.5) + " Y ");
 //                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
-                    if (faceRect.width < 300 && faceRect.height < 300) {
+
+                    int maxFace = mPreviewWidth / 2 - 100;
+
+                    if (faceRect.width < maxFace && faceRect.height < maxFace) {
                         if (live.size() > 0) {
                             Random random = new Random();
                             txt = "请" + live.get(0);

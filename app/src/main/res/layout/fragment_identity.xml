@@ -81,6 +81,7 @@
                 android:layout_height="35dp"
                 android:layout_marginLeft="20dp"
                 android:background="@null"
+                android:inputType="text"
                 android:maxLength="18"
                 android:hint="请输入身份证号"
                 android:textSize="15sp" />

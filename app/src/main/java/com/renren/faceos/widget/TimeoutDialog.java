@@ -59,21 +59,10 @@ public class TimeoutDialog extends Dialog implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_dialog_recollect:
-                if (mOnTimeoutDialogClickListener != null) {
-                    mOnTimeoutDialogClickListener.onRecollect();
-                }
-                break;
-
-            case R.id.btn_dialog_return:
-                if (mOnTimeoutDialogClickListener != null) {
-                    mOnTimeoutDialogClickListener.onReturn();
-                }
-                break;
-
-            default:
-                break;
+        if (v.getId() == R.id.btn_dialog_return) {
+            if (mOnTimeoutDialogClickListener != null) {
+                mOnTimeoutDialogClickListener.onReturn();
+            }
         }
     }
 

@@ -22,10 +22,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    //生成jar包
+    task makeJar(type: Copy) {
+        delete 'build/outputs/network.jar'
+        from('build/intermediates/packaged-classes/release/') //jar文件来源
+        into('build/libs/') //生成路径
+        include('classes.jar')
+        rename('classes.jar', 'smallAppJar.jar') //命名为network.jar
+    }
+
+    makeJar.dependsOn(build)
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+
 }
 
 dependencies {

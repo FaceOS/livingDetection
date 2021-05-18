@@ -3,83 +3,31 @@ package com.renren.faceos.entity;
 public class IdNamePhoto {
 
 
-    /**
-     * loginName : ***
-     * pwd : ***
-     * serviceName : IdNamePhotoCheck
-     * param : {"name":"***","idCard":"***","image":"***"}
-     */
+    private String faceBase64;
+    private String cardNo;
+    private String name;
 
-    private String loginName;
-    private String pwd;
-    private String serviceName;
-    private ParamBean param;
-
-    public String getLoginName() {
-        return loginName;
+    public String getFaceBase64() {
+        return faceBase64;
     }
 
-    public void setLoginName(String loginName) {
-        this.loginName = loginName;
+    public void setFaceBase64(String faceBase64) {
+        this.faceBase64 = faceBase64;
     }
 
-    public String getPwd() {
-        return pwd;
+    public String getCardNo() {
+        return cardNo;
     }
 
-    public void setPwd(String pwd) {
-        this.pwd = pwd;
+    public void setCardNo(String cardNo) {
+        this.cardNo = cardNo;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getName() {
+        return name;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public ParamBean getParam() {
-        return param;
-    }
-
-    public void setParam(ParamBean param) {
-        this.param = param;
-    }
-
-    public static class ParamBean {
-        /**
-         * name : ***
-         * idCard : ***
-         * image : ***
-         */
-
-        private String name;
-        private String idCard;
-        private String image;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getIdCard() {
-            return idCard;
-        }
-
-        public void setIdCard(String idCard) {
-            this.idCard = idCard;
-        }
-
-        public String getImage() {
-            return image;
-        }
-
-        public void setImage(String image) {
-            this.image = image;
-        }
+    public void setName(String name) {
+        this.name = name;
     }
 }

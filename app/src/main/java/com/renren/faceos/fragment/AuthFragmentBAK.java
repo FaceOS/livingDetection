@@ -16,17 +16,16 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.renren.faceos.R;
 import com.renren.faceos.base.BaseFragment;
-import com.renren.faceos.entity.IdName;
 import com.renren.faceos.entity.IdNamePhoto;
 import com.renren.faceos.utils.Base64Utils;
 import com.renren.faceos.utils.BitmapZoomUtils;
 import com.renren.faceos.utils.FaceUtils;
 import com.renren.faceos.widget.AuthDialog;
 
-public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialogClickListener {
+public class AuthFragmentBAK extends BaseFragment implements AuthDialog.OnAuthDialogClickListener {
 
     private AuthDialog authDialog;
-    private String url = "http://api.faceos.com:8181/openapi/IdNamePhotoCheck?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
+    private String url = "https://49.233.242.197:8313/CreditFunc/v2.1/IdNamePhotoCheck";
     private String faceImgUrl = "http://api.faceos.com:8181/openapi/facelivenessImg?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
 
     @Override
@@ -49,16 +48,13 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
         Bitmap faceData = getMainActivity().faceData;
         String name = getMainActivity().name;
         String idCard = getMainActivity().idCard;
-        IdName idName = new IdName();
-        idName.setName(name);
-        idName.setCardNo(idCard);
-//        IdNamePhoto idNamePhoto = new IdNamePhoto();
-//        idNamePhoto.setLoginName("faceos");
-//        idNamePhoto.setPwd("faceos");
-//        idNamePhoto.setServiceName("IdNamePhotoCheck");
-//        IdNamePhoto.ParamBean paramBean = new IdNamePhoto.ParamBean();
-//        paramBean.setName(name);
-//        paramBean.setIdCard(idCard);
+        IdNamePhoto idNamePhoto = new IdNamePhoto();
+        idNamePhoto.setLoginName("faceos");
+        idNamePhoto.setPwd("faceos");
+        idNamePhoto.setServiceName("IdNamePhotoCheck");
+        IdNamePhoto.ParamBean paramBean = new IdNamePhoto.ParamBean();
+        paramBean.setName(name);
+        paramBean.setIdCard(idCard);
         // 图片旋转
         Bitmap rotateBitmap = FaceUtils.bitmapRotation(faceData, 270);
         // 人脸裁剪
@@ -67,11 +63,10 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
         if (cutFace != null) {
             //图片压缩
             Bitmap bitmap = BitmapZoomUtils.compressScale(cutFace);
-//            paramBean.setImage(Base64Utils.bitmapToBase64(bitmap));
-//            Log.e("TAG",Base64Utils.bitmapToBase64(bitmap).length()+"===");
-//            idNamePhoto.setParam(paramBean);
-            idName.setFaceBase64(Base64Utils.bitmapToBase64(bitmap));
-            facelivenessImg(idName, Base64Utils.bitmapToBase64(cutFace));
+            paramBean.setImage(Base64Utils.bitmapToBase64(bitmap));
+            Log.e("TAG",Base64Utils.bitmapToBase64(bitmap).length()+"===");
+            idNamePhoto.setParam(paramBean);
+            facelivenessImg(idNamePhoto, Base64Utils.bitmapToBase64(cutFace));
         } else {
             authDialog.setAuthDialogText("认证失败");
             authDialog.setAuthOutText("重新认证");
@@ -85,7 +80,7 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
         Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
     }
 
-    private void facelivenessImg(final IdName idName, String imageBase64) {
+    private void facelivenessImg(final IdNamePhoto idNamePhoto, String imageBase64) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("imageBase64", imageBase64);
         OkGo.<String>post(faceImgUrl)
@@ -101,7 +96,7 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
                             Float score = data.getFloat("score");
                             if (score > 0.9) {
                                 //为活体
-                                nameIdCardAuth(idName);
+                                nameIdCardAuth(idNamePhoto);
                             } else {
                                 authDialog.setAuthDialogText("认证失败");
                                 authDialog.setAuthOutText("重新认证");
@@ -130,9 +125,9 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
                 });
     }
 
-    private void nameIdCardAuth(IdName idName) {
+    private void nameIdCardAuth(IdNamePhoto idNamePhoto) {
         OkGo.<String>post(url)
-                .upJson(JSON.toJSONString(idName))
+                .upJson(JSON.toJSONString(idNamePhoto))
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

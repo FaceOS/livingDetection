@@ -82,7 +82,7 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
     }
 
     public void toast(String text) {
-        Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
     }
 
     private void facelivenessImg(final IdName idName, String imageBase64) {

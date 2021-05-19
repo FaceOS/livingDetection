@@ -99,7 +99,7 @@ public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialo
                         if (code == 0) {
                             JSONObject data = jsonObject.getJSONObject("data");
                             Float score = data.getFloat("score");
-                            if (score > 0.9) {
+                            if (score > 0.8) {
                                 //为活体
                                 nameIdCardAuth(idName);
                             } else {

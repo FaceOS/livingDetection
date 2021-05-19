@@ -25,7 +25,7 @@ public class TimeoutDialog extends Dialog implements View.OnClickListener {
     private OnTimeoutDialogClickListener mOnTimeoutDialogClickListener;
 
     public TimeoutDialog(@NonNull Context context) {
-        super(context, R.style.DefaultDialog);
+        super(context, R.style.faceos_loading_dialog);
         mContext = context;
     }
 

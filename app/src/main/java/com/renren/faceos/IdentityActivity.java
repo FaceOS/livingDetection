@@ -484,7 +484,9 @@ public class IdentityActivity extends AppCompatActivity implements PermissionsUt
                     //判断人脸中心点
 //                    Log.e(TAG, Math.abs(faceCx - 0.5) + " X " + Math.abs(faceCy - 0.5) + " Y ");
 //                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
-                    if (faceRect.width < 300 && faceRect.height < 300) {
+                    int maxFace = mPreviewWidth / 2 - 100;
+
+                    if (faceRect.width < maxFace && faceRect.height < maxFace) {
                         if (live.size() > 0) {
                             Random random = new Random();
                             txt = "请" + live.get(0);

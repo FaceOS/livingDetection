@@ -69,8 +69,8 @@ public class BitmapZoomUtils {
         // 现在主流手机比较多是800*480分辨率，所以高和宽我们设置为
         // float hh = 800f;// 这里设置高度为800f
         // float ww = 480f;// 这里设置宽度为480f
-        float hh = 200f;
-        float ww = 200f;
+        float hh = 300f;
+        float ww = 300f;
         // 缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
         int be = 1;// be=1表示不缩放
         if (w > h && w > ww) {// 如果宽度大的话根据宽度固定大小缩放

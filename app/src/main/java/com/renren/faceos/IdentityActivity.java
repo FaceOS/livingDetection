@@ -38,6 +38,7 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.lzy.okgo.request.base.Request;
+import com.renren.faceos.R;
 import com.renren.faceos.entity.API;
 import com.renren.faceos.entity.IdNamePhoto;
 import com.renren.faceos.utils.Base64Utils;

@@ -95,7 +95,7 @@ public class DetectFragment extends BaseFragment implements
     private TextureView textureView;
     private int liveSize;
     private boolean flag;
-    private String[] action = {"张张嘴", "眨眨眼"};
+    private String[] action = {"张张嘴", "缓慢摇头", "缓慢抬头"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -178,15 +178,16 @@ public class DetectFragment extends BaseFragment implements
         //随机动作
         Random random = new Random();
         List<Integer> indexArray = new ArrayList<>();
-        while (indexArray.size() != 2) {
-            int index = random.nextInt(2);
+        while (indexArray.size() != 3) {
+            int index = random.nextInt(3);
             if (!indexArray.contains(index))
                 indexArray.add(index);
         }
         for (Integer index : indexArray) {
             live.add(action[index]);
         }
-        live.add(1, "左右摇摇头");
+        live.remove(2);
+        live.add(2, "眨眨眼");
 //        for (String s : live) {
 //            System.out.println(s + "==================");
 //        }
@@ -400,6 +401,8 @@ public class DetectFragment extends BaseFragment implements
                     liveStartTime = System.currentTimeMillis();
 //                  人脸位置
                     Face faceRect = trackingInfo.get(0);
+                    float pitch = faceRect.pitch;
+                    float yaw = faceRect.yaw;
 //                    float faceCx = faceRect.center_x / faceTracker.ui_width;
 //                    float faceCy = faceRect.center_y / faceTracker.ui_height;
 //                    float faceCx=1;
@@ -415,49 +418,70 @@ public class DetectFragment extends BaseFragment implements
 //                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
 
                     int maxFace = mPreviewWidth / 2 - 100;
+                    if (Math.abs(pitch) > 10) {
+                        if (Math.abs(pitch) < 25) {
+                            if (Math.abs(yaw) < 20) {
+                                if (faceRect.width < maxFace && faceRect.height < maxFace) {
+                                    if (live.size() > 0) {
+                                        Random random = new Random();
+                                        txt = "请" + live.get(0);
+                                        mFaceDetectRoundView.setTipTopText(txt);
+                                        switch (live.get(0)) {
+                                            case "张张嘴":
+                                                if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
+                                                    detectionState = true;
+                                                    live.remove("张张嘴");
+                                                    mFaceDetectRoundView.setTipTopText("非常好");
+                                                    detectionStateSleep();
+                                                }
 
-                    if (faceRect.width < maxFace && faceRect.height < maxFace) {
-                        if (live.size() > 0) {
-                            Random random = new Random();
-                            txt = "请" + live.get(0);
-                            mFaceDetectRoundView.setTipTopText(txt);
-                            switch (live.get(0)) {
-                                case "张张嘴":
-                                    if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
-                                        detectionState = true;
-                                        live.remove("张张嘴");
-                                        mFaceDetectRoundView.setTipTopText("非常好");
-                                        detectionStateSleep();
-                                    }
+                                                break;
+                                            case "缓慢摇头":
+                                                if (Math.abs(pitch) < 13 || Math.abs(pitch) > 20) {
+                                                    detectionState = true;
+                                                    live.remove("缓慢摇头");
+                                                    mFaceDetectRoundView.setTipTopText("非常好");
+                                                    detectionStateSleep();
+                                                }
+                                                break;
+                                            case "缓慢抬头":
+                                                if (Math.abs(yaw) > 10) {
+                                                    detectionState = true;
+                                                    live.remove("缓慢抬头");
+                                                    mFaceDetectRoundView.setTipTopText("非常好");
+                                                    detectionStateSleep();
+                                                }
 
-                                    break;
-                                case "左右摇摇头":
-                                    if (faceRect.shakeState == 1) {
-                                        detectionState = true;
-                                        live.remove("左右摇摇头");
-                                        mFaceDetectRoundView.setTipTopText("非常好");
-                                        detectionStateSleep();
-                                    }
+                                                break;
+                                            case "眨眨眼":
+                                                if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
+                                                    detectionState = true;
+                                                    live.remove("眨眨眼");
+                                                    mFaceDetectRoundView.setTipTopText("非常好");
+                                                    detectionStateSleep();
+                                                }
+                                                break;
+                                        }
+                                        mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
+                                        if (live.size() == 0) {
+                                            takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
+                                        }
 
-                                    break;
-                                case "眨眨眼":
-                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
-                                        detectionState = true;
-                                        live.remove("眨眨眼");
-                                        mFaceDetectRoundView.setTipTopText("非常好");
-                                        detectionStateSleep();
                                     }
-                                    break;
+                                } else {
+                                    mFaceDetectRoundView.setTipTopText("请把手机拿远一点");
+                                }
+
+                            } else {
+                                mFaceDetectRoundView.setTipTopText("请正对手机");
                             }
-                            mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
-                            if (live.size() == 0) {
-                                takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                            }
-
+                        } else {
+                            mFaceDetectRoundView.setTipTopText("请正对手机");
                         }
                     } else {
-                        mFaceDetectRoundView.setTipTopText("请把手机拿远一点");
+                        mFaceDetectRoundView.setTipTopText("请正对手机");
                     }
+
                 } else {
                     //无人脸
                     mFaceDetectRoundView.setTipTopText("未检测到人脸");

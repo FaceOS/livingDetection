@@ -28,7 +28,9 @@ public class IdentityFragment extends BaseFragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_identity, container, false);
         Button submit = view.findViewById(R.id.submit);
         name = view.findViewById(R.id.name);
+        String digists = "xX0123456789";
         idCard = view.findViewById(R.id.id_card);
+        idCard.setKeyListener(DigitsKeyListener.getInstance(digists));
         submit.setOnClickListener(this);
         return view;
     }

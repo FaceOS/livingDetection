@@ -213,7 +213,7 @@ public class FaceDetectRoundView extends View {
             canvas.drawText(mTipTopText, mX, mY - mR - 40 - 25 - 59 - 40, mTextTopPaint);
         }
         if (mTipTopText.equals("非常好")) {
-            canvas.drawBitmap(liveSuccessBitmap, mX - 59 - 28, mY - mR - 40 - 25 - 59, mTextSecondPaint);
+            canvas.drawBitmap(liveSuccessBitmap, mX - liveSuccessBitmap.getWidth() / 2, mY - mR - 40 - 25 - 59, mTextSecondPaint);
         }
 
         if (mIsActiveLive) {

@@ -1,40 +1,21 @@
 package com.renren.faceos;
 
 
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
-import com.renren.faceos.entity.IdNamePhoto;
 import com.renren.faceos.fragment.AuthFragment;
 import com.renren.faceos.fragment.DetectFragment;
 import com.renren.faceos.fragment.IdentityFragment;
-import com.renren.faceos.utils.Base64Utils;
-import com.renren.faceos.utils.FaceUtils;
 import com.renren.faceos.utils.FileUtils;
 import com.renren.faceos.utils.PermissionsUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 public class MainActivity extends AppCompatActivity implements PermissionsUtil.IPermissionsCallback {
     private static final String TAG = MainActivity.class.getSimpleName();

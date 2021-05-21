@@ -58,15 +58,14 @@ public class AuthFragmentBAK extends BaseFragment implements AuthDialog.OnAuthDi
         // 图片旋转
         Bitmap rotateBitmap = FaceUtils.bitmapRotation(faceData, 270);
         // 人脸裁剪
-        Bitmap cutFace = FaceUtils.faceCut(rotateBitmap, getContext());
+//        Bitmap cutFace = FaceUtils.faceCut(rotateBitmap, getContext());
         //这里图片可能是空的
-        if (cutFace != null) {
+        if (rotateBitmap != null) {
             //图片压缩
-            Bitmap bitmap = BitmapZoomUtils.compressScale(cutFace);
+            Bitmap bitmap = BitmapZoomUtils.compressScale(rotateBitmap);
             paramBean.setImage(Base64Utils.bitmapToBase64(bitmap));
-            Log.e("TAG",Base64Utils.bitmapToBase64(bitmap).length()+"===");
             idNamePhoto.setParam(paramBean);
-            facelivenessImg(idNamePhoto, Base64Utils.bitmapToBase64(cutFace));
+            facelivenessImg(idNamePhoto, Base64Utils.bitmapToBase64(rotateBitmap));
         } else {
             authDialog.setAuthDialogText("认证失败");
             authDialog.setAuthOutText("重新认证");

@@ -34,7 +34,6 @@ public class Base64Utils {
                     bitmapBytes = baos.toByteArray();
                     result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT);
                 }
-                Log.e("eeee", "1111111114 " + result.length() / 1024);
             }
         } catch (IOException e) {
             e.printStackTrace();

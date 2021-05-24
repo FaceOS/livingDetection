@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
     public Bitmap faceData;
     public String name;
     public String idCard;
+    public int currentBright;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

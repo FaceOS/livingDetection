@@ -11,6 +11,10 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,6 +41,9 @@ import com.renren.faceos.utils.BrightnessUtils;
 import com.renren.faceos.utils.CameraPreviewUtils;
 import com.renren.faceos.utils.CameraUtils;
 import com.renren.faceos.utils.FastYUVtoRGB;
+import com.renren.faceos.utils.FileUtils;
+import com.renren.faceos.utils.RotateNV21Utils;
+import com.renren.faceos.utils.SensorManagerHelper;
 import com.renren.faceos.widget.FaceDetectRoundView;
 import com.renren.faceos.widget.TimeoutDialog;
 
@@ -47,6 +54,7 @@ import java.util.Random;
 
 import faceos.tracking.Face;
 import faceos.tracking.FaceTracking;
+
 
 public class DetectFragment extends BaseFragment implements
         SurfaceHolder.Callback,
@@ -96,6 +104,8 @@ public class DetectFragment extends BaseFragment implements
     private int liveSize;
     private boolean flag;
     private String[] action = {"张张嘴", "缓慢摇头", "缓慢抬头"};
+    private SensorManagerHelper sensorHelper;
+    private long sensorTime;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -138,6 +148,16 @@ public class DetectFragment extends BaseFragment implements
         mFaceDetectRoundView.setIsActiveLive(true);
 
         textureView = view.findViewById(R.id.textureView);
+
+        sensorHelper = new SensorManagerHelper(getContext());
+        sensorHelper.setOnShakeListener(new SensorManagerHelper.OnShakeListener() {
+            @Override
+            public void onShake() {
+                sensorTime = System.currentTimeMillis();
+//                Log.e("TAG", "6666666666666666");
+            }
+        });
+
         return view;
     }
 
@@ -201,8 +221,8 @@ public class DetectFragment extends BaseFragment implements
      * 设置屏幕亮度
      */
     private void setScreenBright() {
-        int currentBright = BrightnessUtils.getScreenBrightness(getActivity());
-        BrightnessUtils.setBrightness(getActivity(), currentBright + 100);
+        getMainActivity().currentBright = BrightnessUtils.getScreenBrightness(getActivity());
+        BrightnessUtils.setBrightness(getActivity(), getMainActivity().currentBright + 100);
     }
 
     @Override
@@ -306,7 +326,7 @@ public class DetectFragment extends BaseFragment implements
 
         mCameraParam.setPreviewSize(mPreviewWidth, mPreviewHeight);
         mCamera.setParameters(mCameraParam);
-        Log.e(TAG, mPreviewWidth + " size " + mPreviewHeight);
+        Log.e(TAG, mPreviewWidth + " mPreviewRect " + mPreviewHeight);
         try {
             mCamera.setPreviewDisplay(mSurfaceHolder);
             mCamera.stopPreview();
@@ -395,91 +415,106 @@ public class DetectFragment extends BaseFragment implements
                 initTrack = true;
             } else {
                 //更新人脸数据
-                faceTracker.Update(data, mPreviewHeight, mPreviewWidth, true);
+                data = RotateNV21Utils.rotationNV21(data, 270, mPreviewWidth, mPreviewHeight);
+                faceTracker.Update(data, mPreviewWidth, mPreviewHeight, true);
                 List<Face> trackingInfo = faceTracker.getTrackingInfo();
                 if (trackingInfo.size() > 0) {
                     liveStartTime = System.currentTimeMillis();
 //                  人脸位置
                     Face faceRect = trackingInfo.get(0);
+//                    Log.e("android", faceRect.left + " " + faceRect.right + " " + faceRect.bottom + " " + faceRect.top);
                     float pitch = faceRect.pitch;
                     float yaw = faceRect.yaw;
-//                    float faceCx = faceRect.center_x / faceTracker.ui_width;
-//                    float faceCy = faceRect.center_y / faceTracker.ui_height;
+                    float faceCx = faceRect.mCenterX / mPreviewHeight;
+                    float faceCy = faceRect.mCenterY / mPreviewWidth;
 //                    float faceCx=1;
 //                    float faceCy=1;
 //                    Log.e("debug", mPreviewWidth + "  " + mPreviewHeight + "width " + faceRect.width + "height " + faceRect.height);
-                    //Log.e(TAG, "faceDetectRectRect" + faceDetectRectRect.toString());
+
+//                    Rect previewDetectRect = FaceDetectRoundView.getPreviewDetectRect(1440, 3044, 1188, 540);
+//                    int mCenterX = (previewDetectRect.left + previewDetectRect.right) >> 1;
+//                    int mCenterY = (previewDetectRect.top + previewDetectRect.bottom) >> 1;
+                    //previewDetectRect720 1369
+//                    Log.e(TAG, "previewDetectRect" + previewDetectRect.left + " "
+//                            + previewDetectRect.right + " " + previewDetectRect.top + " " + previewDetectRect.bottom);
+
+//                    Log.e(TAG, "faceDetectRectRect" + faceRect.mCenterX + " " + faceRect.mCenterY);
 //                    Log.e("face x", faceCx + "");
 //                    Log.e("face y", faceCy + "");
 //                    Log.e("CenterJ", (Math.abs(faceCx - 0.5) < 0.1 && Math.abs(faceCy - 0.5) < 0.1 && faceWidthRef > 0.3) + "");
-
+//                    Log.e("CenterJ", mCenterX+ " XXX " + mCenterY  +" YYY ");
                     //判断人脸中心点
-//                    Log.e(TAG, Math.abs(faceCx - 0.5) + " X " + Math.abs(faceCy - 0.5) + " Y ");
-//                    if (Math.abs(faceCx - 0.5) < 0.3 && Math.abs(faceCy - 0.5) < 0.2) {
-
+                    Log.e("CenterJ", faceCx + " X " + faceCy + " Y ");
                     int maxFace = mPreviewWidth / 2 - 100;
-                    if (Math.abs(pitch) > 10) {
-                        if (Math.abs(pitch) < 25) {
-                            if (Math.abs(yaw) < 20) {
-                                if (faceRect.width < maxFace && faceRect.height < maxFace) {
-                                    if (live.size() > 0) {
-                                        Random random = new Random();
-                                        txt = "请" + live.get(0);
-                                        mFaceDetectRoundView.setTipTopText(txt);
-                                        switch (live.get(0)) {
-                                            case "张张嘴":
-                                                if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
-                                                    detectionState = true;
-                                                    live.remove("张张嘴");
-                                                    mFaceDetectRoundView.setTipTopText("非常好");
-                                                    detectionStateSleep();
-                                                }
+                    if (faceRect.width < maxFace && faceRect.height < maxFace) {
+                        if ((faceCx > 0.2 && faceCx < 0.7) && (faceCy > 0.4 && faceCy < 0.6)) {
+                            if (Math.abs(pitch) > 0) {
+                                if (Math.abs(pitch) < 10) {
+                                    if (Math.abs(yaw) < 10) {
+                                        if (live.size() > 0) {
+                                            Random random = new Random();
+                                            txt = "请" + live.get(0);
+                                            mFaceDetectRoundView.setTipTopText(txt);
+                                            switch (live.get(0)) {
+                                                case "张张嘴":
+                                                    if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
+                                                        detectionState = true;
+                                                        live.remove("张张嘴");
+                                                        mFaceDetectRoundView.setTipTopText("非常好");
+                                                        detectionStateSleep();
+                                                    }
 
-                                                break;
-                                            case "缓慢摇头":
-                                                if (Math.abs(pitch) < 13 || Math.abs(pitch) > 20) {
-                                                    detectionState = true;
-                                                    live.remove("缓慢摇头");
-                                                    mFaceDetectRoundView.setTipTopText("非常好");
-                                                    detectionStateSleep();
-                                                }
-                                                break;
-                                            case "缓慢抬头":
-                                                if (Math.abs(yaw) > 10) {
-                                                    detectionState = true;
-                                                    live.remove("缓慢抬头");
-                                                    mFaceDetectRoundView.setTipTopText("非常好");
-                                                    detectionStateSleep();
-                                                }
+                                                    break;
+                                                case "缓慢摇头":
+                                                    if (System.currentTimeMillis() - sensorTime > 500) {
+                                                        if (yaw < -3 || Math.abs(yaw) > 8) {
+                                                            detectionState = true;
+                                                            live.remove("缓慢摇头");
+                                                            mFaceDetectRoundView.setTipTopText("非常好");
+                                                            detectionStateSleep();
+                                                        }
+                                                    }
+                                                    break;
+                                                case "缓慢抬头":
+                                                    if (System.currentTimeMillis() - sensorTime > 500) {
+                                                        if (Math.abs(pitch) > 8) {
+                                                            detectionState = true;
+                                                            live.remove("缓慢抬头");
+                                                            mFaceDetectRoundView.setTipTopText("非常好");
+                                                            detectionStateSleep();
+                                                        }
+                                                    }
+                                                    break;
+                                                case "眨眨眼":
+                                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
+                                                        detectionState = true;
+                                                        live.remove("眨眨眼");
+                                                        mFaceDetectRoundView.setTipTopText("非常好");
+                                                        detectionStateSleep();
+                                                    }
+                                                    break;
+                                            }
+                                            mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
+                                            if (live.size() == 0) {
+                                                takePhoto(faceRect, data, mPreviewHeight, mPreviewWidth);
+                                            }
 
-                                                break;
-                                            case "眨眨眼":
-                                                if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
-                                                    detectionState = true;
-                                                    live.remove("眨眨眼");
-                                                    mFaceDetectRoundView.setTipTopText("非常好");
-                                                    detectionStateSleep();
-                                                }
-                                                break;
                                         }
-                                        mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
-                                        if (live.size() == 0) {
-                                            takePhoto(faceRect, data, mPreviewWidth, mPreviewHeight);
-                                        }
-
+                                    } else {
+                                        mFaceDetectRoundView.setTipTopText("请正对手机");
                                     }
-                                } else {
-                                    mFaceDetectRoundView.setTipTopText("请把手机拿远一点");
-                                }
 
+                                } else {
+                                    mFaceDetectRoundView.setTipTopText("请正对手机");
+                                }
                             } else {
                                 mFaceDetectRoundView.setTipTopText("请正对手机");
                             }
                         } else {
-                            mFaceDetectRoundView.setTipTopText("请正对手机");
+                            mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
                         }
                     } else {
-                        mFaceDetectRoundView.setTipTopText("请正对手机");
+                        mFaceDetectRoundView.setTipTopText("请把手机拿远一点");
                     }
 
                 } else {
@@ -544,10 +579,12 @@ public class DetectFragment extends BaseFragment implements
         try {
             resultData = data;
             FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(getContext());
+
+            Log.e("TAG", face.left + " " + face.right + " " + face.bottom + " " + face.top);
             ((MainActivity) getActivity()).faceData = fastYUVtoRGB.convertYUVtoRGB(data, width, height);
-//            takePhotoFile = File.createTempFile("face", null, getActivity().getCacheDir());
-////                //保存人脸到SD卡
-//            FileUtils.saveFile(takePhotoFile, bitmap);
+            takePhotoFile = File.createTempFile("face", null, getActivity().getCacheDir());
+//                //保存人脸到SD卡
+            FileUtils.saveFile(takePhotoFile, ((MainActivity) getActivity()).faceData);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -591,7 +628,7 @@ public class DetectFragment extends BaseFragment implements
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
         mIsCreateSurface = false;
         if (faceTracker != null) {
-//            faceTracker.releaseSession();
+            faceTracker.releaseSession();
             faceTracker = null;
         }
     }
@@ -611,7 +648,6 @@ public class DetectFragment extends BaseFragment implements
         paint.setColor(Color.WHITE);
     }
 
-    Rect sysRect = null;
 
     private void showFrame(Camera.Face[] faces) {
         Canvas canvas = textureView.lockCanvas();
@@ -619,16 +655,17 @@ public class DetectFragment extends BaseFragment implements
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         if (faces.length < 1) {
             // 清空canvas
-            sysRect = null;
-            mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
-//            mSurfaceHolder.unlockCanvasAndPost(canvas);
+//            mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
+            textureView.unlockCanvasAndPost(canvas);
             return;
         }
-
+        Log.e("android", "aaaaa" +
+                faces[0].rect.left + " " + faces[0].rect.right + " " + faces[0].rect.bottom + " " + faces[0].rect.top);
         RectF rectF = new RectF(faces[0].rect);
         int viewWidth = textureView.getWidth();
         int viewHeight = textureView.getHeight();
         Matrix matrix = new Matrix();
+        Log.e("viewWidth", viewHeight + "  " + viewWidth);
 
 //        这里使用的是后置摄像头就不用翻转。由于没有进行旋转角度的兼容，这里直接传系统调整的值
         prepareMatrix(matrix, false, 270, viewWidth, viewHeight);
@@ -640,13 +677,11 @@ public class DetectFragment extends BaseFragment implements
         float right = left + rectF.width();
         rectF.left = left;
         rectF.right = right;
+        //left right top bottom
+        //previewDetectRectRect(180, 721 - 1260, 2017)
+        Log.e("TAG", rectF.left + " " + rectF.right + " " + rectF.top + " " + rectF.bottom);
         canvas.drawRect(rectF, paint);
 
-        float cx = (rectF.left + rectF.right) / 2;
-        float cy = (rectF.top + rectF.bottom) / 2;
-
-
-        sysRect = new Rect((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom);
         textureView.unlockCanvasAndPost(canvas);
 
     }
@@ -661,5 +696,13 @@ public class DetectFragment extends BaseFragment implements
         // UI coordinates range from (0, 0) to (width, height)
         matrix.postScale(viewWidth / 2000f, viewHeight / 2000f);
         matrix.postTranslate(viewWidth / 2f, viewHeight / 2f);
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        sensorHelper.stop();
+
     }
 }

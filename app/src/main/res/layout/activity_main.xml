@@ -36,7 +36,7 @@
             android:layout_marginTop="10dp"
             android:text="身份输入"
             android:textColor="@color/black"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@id/step_1"
             app:layout_constraintStart_toStartOf="@id/step_1"
@@ -44,7 +44,7 @@
 
         <View
             android:id="@+id/line_1"
-            android:layout_width="50dp"
+            android:layout_width="100dp"
             android:layout_height="5dp"
             android:background="@color/line_gray"
             app:layout_constraintBottom_toBottomOf="@+id/step_1"
@@ -71,7 +71,7 @@
             android:layout_marginTop="10dp"
             android:text="人脸检测"
             android:textColor="@color/black"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@+id/step_2"
             app:layout_constraintStart_toStartOf="@+id/step_2"
@@ -79,7 +79,7 @@
 
         <View
             android:id="@+id/line_2"
-            android:layout_width="50dp"
+            android:layout_width="100dp"
             android:layout_height="5dp"
             android:background="@color/line_gray"
             app:layout_constraintBottom_toBottomOf="@+id/step_2"
@@ -107,7 +107,7 @@
             android:layout_marginTop="10dp"
             android:text="实名认证"
             android:textColor="@color/black"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@+id/step_3"
             app:layout_constraintStart_toStartOf="@+id/step_3"

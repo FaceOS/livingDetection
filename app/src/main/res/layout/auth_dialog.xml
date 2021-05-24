@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="100dp"
+    android:layout_marginLeft="100dp"
+    android:layout_marginRight="100dp"
+    android:paddingBottom="10dp"
     android:background="@drawable/bg_round_auth"
     android:gravity="center"
     android:orientation="vertical">
@@ -11,7 +13,7 @@
         android:id="@+id/auth_dialog_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="15dp"
+        android:layout_marginTop="30dp"
         android:text="认证成功"
         android:textColor="@color/black"
         android:textSize="18sp" />
@@ -20,6 +22,7 @@
         android:id="@+id/auth_dialog_img"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_marginTop="20dp"
         android:src="@mipmap/ic_auth_success" />
 
     <Button
@@ -27,6 +30,8 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_margin="10dp"
+        android:stateListAnimator="@null"
+        android:layout_marginTop="20dp"
         android:background="@drawable/bg_round_submit_button"
         android:text="完成"
         android:textColor="@color/white"

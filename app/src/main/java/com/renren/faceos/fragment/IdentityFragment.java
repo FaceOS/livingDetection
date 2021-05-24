@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import com.renren.faceos.MainActivity;
 import com.renren.faceos.R;
 import com.renren.faceos.base.BaseFragment;
+import com.renren.faceos.utils.BrightnessUtils;
 import com.renren.faceos.utils.CheckIdCard;
 
 public class IdentityFragment extends BaseFragment implements View.OnClickListener {
@@ -32,19 +34,26 @@ public class IdentityFragment extends BaseFragment implements View.OnClickListen
         idCard = view.findViewById(R.id.id_card);
         idCard.setKeyListener(DigitsKeyListener.getInstance(digists));
         submit.setOnClickListener(this);
+
         return view;
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        setScreenBright();
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
 
+    }
 
     @Override
     public void onClick(View view) {
-//        name.setText("彭佳新");
-//        idCard.setText("140212199411210511");
+        name.setText("彭佳新");
+        idCard.setText("140212199411210511");
         String nameStr = name.getText().toString();
         String idCardStr = idCard.getText().toString();
         if (TextUtils.isEmpty(nameStr)) {
@@ -62,5 +71,14 @@ public class IdentityFragment extends BaseFragment implements View.OnClickListen
         getMainActivity().name = nameStr;
         getMainActivity().idCard = idCardStr;
         getMainActivity().initDetectFragment();
+    }
+
+    /**
+     * 设置屏幕亮度
+     */
+    private void setScreenBright() {
+        if (getMainActivity().currentBright != 0) {
+            BrightnessUtils.setBrightness(getActivity(), getMainActivity().currentBright);
+        }
     }
 }

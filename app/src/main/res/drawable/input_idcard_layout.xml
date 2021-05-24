@@ -5,5 +5,5 @@
 
     <!-- 设置按钮的四个角为弧形 -->
     <!-- android:radius 弧形的半径 -->
-    <corners android:radius="10dip" />
+    <corners android:radius="3dip" />
 </shape>

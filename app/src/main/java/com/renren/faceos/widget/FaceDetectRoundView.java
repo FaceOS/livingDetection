@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import com.renren.faceos.R;
 import com.renren.faceos.utils.DensityUtils;
 
+import faceos.tracking.Face;
+
 
 /**
  * 人脸检测区域View
@@ -64,11 +66,16 @@ public class FaceDetectRoundView extends View {
     private String mTipTopText;
     private Bitmap liveSuccessBitmap;
 
+    private static float mRatioX;
+    private static float mRatioY;
+    private Face mFaceExtInfo;
+    private Context mContext;
+
     public FaceDetectRoundView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
+        mContext = context;
         // DisplayMetrics dm = context.getResources().getDisplayMetrics();
         // float pathSpace = DensityUtils.dip2px(context, PATH_SPACE);
         // float pathSmallSpace = DensityUtils.dip2px(context, PATH_SMALL_SPACE);
@@ -205,6 +212,16 @@ public class FaceDetectRoundView extends View {
         canvas.drawColor(Color.TRANSPARENT);
         canvas.drawPaint(mBGPaint);
         canvas.drawCircle(mX, mY, mR, mFaceRoundPaint);
+        // TODO：画检测区域（用于调试，这4个参数分别表示屏幕宽高和手机摄像头分辨率宽高，需要手动修改）
+        // TODO：（使用时，将注释放开）
+//        int displayWidth = DensityUtils.getDisplayWidth(mContext);
+//        int displayHeight = DensityUtils.getDisplayHeight(mContext);
+//        Log.e("FaceDetectRoundView", "displayWidth" + displayWidth + " displayHeight" + displayHeight);
+//        canvas.drawRect(getPreviewDetectRect(1440, 3044, 1188, 540), mCircleLinePaint);
+        // TODO：画人脸检测框（用于调试，使用时，将注释放开）
+//        if (getFaceInfoRect(mFaceExtInfo) != null) {
+//            canvas.drawRect(getFaceInfoRect(mFaceExtInfo), mCircleLinePaint);
+//        }
         // 画文字
         if (!TextUtils.isEmpty(mTipSecondText)) {
             canvas.drawText(mTipSecondText, mX, mY - mR - 40 - 25 - 59, mTextSecondPaint);
@@ -251,11 +268,14 @@ public class FaceDetectRoundView extends View {
         canvas.restore();
     }
 
-    public static Rect getPreviewDetectRect(int w, int pw, int ph) {
+    // 获取人脸检测区域（调试使用）
+    public static Rect getPreviewDetectRect(int w, int h, int pw, int ph) {
         float round = (w / 2) - ((w / 2) * WIDTH_SPACE_RATIO);
-        float x = pw / 2;
-        float y = (ph / 2) - ((ph / 2) * HEIGHT_RATIO);
-        float r = (pw / 2) > round ? round : (pw / 2);
+        mRatioX = (w * 1.0f) / (pw * 1.0f);
+        mRatioY = (h * 1.0f) / (ph * 1.0f);  // 获取屏幕宽高和手机摄像头宽高的比值，用于映射
+        float x = pw / 2.0f * mRatioX;
+        float y = (ph / 2.0f * mRatioY) - ((ph / 2.0f * mRatioY) * HEIGHT_RATIO);
+        float r = (pw / 2.0f * mRatioX) > round ? round : (pw / 2.0f * mRatioX);
         float hr = r + (r * HEIGHT_EXT_RATIO);
         Rect rect = new Rect((int) (x - r),
                 (int) (y - hr),

@@ -103,7 +103,8 @@ public class DetectFragment extends BaseFragment implements
     private TextureView textureView;
     private int liveSize;
     private boolean flag;
-    private String[] action = {"张张嘴", "缓慢摇头", "缓慢抬头"};
+    private String[] actionStart = {"张张嘴", "眨眨眼"};
+    private String[] action = {"缓慢摇头", "缓慢抬头"};
     private SensorManagerHelper sensorHelper;
     private long sensorTime;
 
@@ -148,13 +149,12 @@ public class DetectFragment extends BaseFragment implements
         mFaceDetectRoundView.setIsActiveLive(true);
 
         textureView = view.findViewById(R.id.textureView);
-
+        //加速度检测，防止手机摇晃通过动作
         sensorHelper = new SensorManagerHelper(getContext());
         sensorHelper.setOnShakeListener(new SensorManagerHelper.OnShakeListener() {
             @Override
             public void onShake() {
                 sensorTime = System.currentTimeMillis();
-//                Log.e("TAG", "6666666666666666");
             }
         });
 
@@ -198,16 +198,16 @@ public class DetectFragment extends BaseFragment implements
         //随机动作
         Random random = new Random();
         List<Integer> indexArray = new ArrayList<>();
-        while (indexArray.size() != 3) {
-            int index = random.nextInt(3);
+        while (indexArray.size() != 2) {
+            int index = random.nextInt(2);
             if (!indexArray.contains(index))
                 indexArray.add(index);
         }
         for (Integer index : indexArray) {
-            live.add(action[index]);
+            live.add(actionStart[index]);
         }
-        live.remove(2);
-        live.add(2, "眨眨眼");
+//        live.remove(2);
+        live.add(1, action[indexArray.get(0)]);
 //        for (String s : live) {
 //            System.out.println(s + "==================");
 //        }
@@ -228,9 +228,6 @@ public class DetectFragment extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        if (mFaceDetectRoundView != null) {
-            mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
-        }
         startPreview();
     }
 
@@ -444,10 +441,10 @@ public class DetectFragment extends BaseFragment implements
 //                    Log.e("CenterJ", (Math.abs(faceCx - 0.5) < 0.1 && Math.abs(faceCy - 0.5) < 0.1 && faceWidthRef > 0.3) + "");
 //                    Log.e("CenterJ", mCenterX+ " XXX " + mCenterY  +" YYY ");
                     //判断人脸中心点
-                    Log.e("CenterJ", faceCx + " X " + faceCy + " Y ");
+//                    Log.e("CenterJ", faceCx + " X " + faceCy + " Y ");
                     int maxFace = mPreviewWidth / 2 - 100;
                     if (faceRect.width < maxFace && faceRect.height < maxFace) {
-                        if ((faceCx > 0.2 && faceCx < 0.7) && (faceCy > 0.4 && faceCy < 0.6)) {
+                        if ((faceCx > 0.2 && faceCx < 0.6) && (faceCy > 0.4 && faceCy < 0.6)) {
                             if (Math.abs(pitch) > 0) {
                                 if (Math.abs(pitch) < 10) {
                                     if (Math.abs(yaw) < 10) {
@@ -455,6 +452,10 @@ public class DetectFragment extends BaseFragment implements
                                             Random random = new Random();
                                             txt = "请" + live.get(0);
                                             mFaceDetectRoundView.setTipTopText(txt);
+                                            //检测手机摇晃
+                                            if (System.currentTimeMillis() - sensorTime < 500) {
+                                                return;
+                                            }
                                             switch (live.get(0)) {
                                                 case "张张嘴":
                                                     if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
@@ -466,23 +467,19 @@ public class DetectFragment extends BaseFragment implements
 
                                                     break;
                                                 case "缓慢摇头":
-                                                    if (System.currentTimeMillis() - sensorTime > 500) {
-                                                        if (yaw < -3 || Math.abs(yaw) > 8) {
-                                                            detectionState = true;
-                                                            live.remove("缓慢摇头");
-                                                            mFaceDetectRoundView.setTipTopText("非常好");
-                                                            detectionStateSleep();
-                                                        }
+                                                    if (yaw < -3 || Math.abs(yaw) > 8) {
+                                                        detectionState = true;
+                                                        live.remove("缓慢摇头");
+                                                        mFaceDetectRoundView.setTipTopText("非常好");
+                                                        detectionStateSleep();
                                                     }
                                                     break;
                                                 case "缓慢抬头":
-                                                    if (System.currentTimeMillis() - sensorTime > 500) {
-                                                        if (Math.abs(pitch) > 8) {
-                                                            detectionState = true;
-                                                            live.remove("缓慢抬头");
-                                                            mFaceDetectRoundView.setTipTopText("非常好");
-                                                            detectionStateSleep();
-                                                        }
+                                                    if (Math.abs(pitch) > 8) {
+                                                        detectionState = true;
+                                                        live.remove("缓慢抬头");
+                                                        mFaceDetectRoundView.setTipTopText("非常好");
+                                                        detectionStateSleep();
                                                     }
                                                     break;
                                                 case "眨眨眼":
@@ -511,7 +508,7 @@ public class DetectFragment extends BaseFragment implements
                                 mFaceDetectRoundView.setTipTopText("请正对手机");
                             }
                         } else {
-                            mFaceDetectRoundView.setTipTopText("请将脸移入取景框");
+                            mFaceDetectRoundView.setTipTopText("把脸移动到框内");
                         }
                     } else {
                         mFaceDetectRoundView.setTipTopText("请把手机拿远一点");
@@ -659,14 +656,14 @@ public class DetectFragment extends BaseFragment implements
             textureView.unlockCanvasAndPost(canvas);
             return;
         }
-        Log.e("android", "aaaaa" +
-                faces[0].rect.left + " " + faces[0].rect.right + " " + faces[0].rect.bottom + " " + faces[0].rect.top);
+//        Log.e("android", "aaaaa" +
+//                faces[0].rect.left + " " + faces[0].rect.right + " " + faces[0].rect.bottom + " " + faces[0].rect.top);
         RectF rectF = new RectF(faces[0].rect);
         int viewWidth = textureView.getWidth();
         int viewHeight = textureView.getHeight();
         Matrix matrix = new Matrix();
-        Log.e("viewWidth", viewHeight + "  " + viewWidth);
-
+//        Log.e("viewWidth", viewHeight + "  " + viewWidth);
+//
 //        这里使用的是后置摄像头就不用翻转。由于没有进行旋转角度的兼容，这里直接传系统调整的值
         prepareMatrix(matrix, false, 270, viewWidth, viewHeight);
         //坐标调整
@@ -679,7 +676,7 @@ public class DetectFragment extends BaseFragment implements
         rectF.right = right;
         //left right top bottom
         //previewDetectRectRect(180, 721 - 1260, 2017)
-        Log.e("TAG", rectF.left + " " + rectF.right + " " + rectF.top + " " + rectF.bottom);
+//        Log.e("TAG", rectF.left + " " + rectF.right + " " + rectF.top + " " + rectF.bottom);
         canvas.drawRect(rectF, paint);
 
         textureView.unlockCanvasAndPost(canvas);

@@ -3,7 +3,9 @@ package com.renren.faceos.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,10 +21,13 @@ import com.renren.faceos.base.BaseFragment;
 import com.renren.faceos.utils.BrightnessUtils;
 import com.renren.faceos.utils.CheckIdCard;
 
-public class IdentityFragment extends BaseFragment implements View.OnClickListener {
-    EditText name;
-    EditText idCard;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
+public class IdentityFragment extends BaseFragment implements View.OnClickListener {
+    public EditText name;
+    public EditText idCard;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -30,6 +35,7 @@ public class IdentityFragment extends BaseFragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_identity, container, false);
         Button submit = view.findViewById(R.id.submit);
         name = view.findViewById(R.id.name);
+        idCard = view.findViewById(R.id.id_card);
         String digists = "xX0123456789";
         idCard = view.findViewById(R.id.id_card);
         idCard.setKeyListener(DigitsKeyListener.getInstance(digists));
@@ -52,8 +58,8 @@ public class IdentityFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     public void onClick(View view) {
-        name.setText("彭佳新");
-        idCard.setText("140212199411210511");
+//        name.setText("彭佳新");
+//        idCard.setText("140212199411210511");
         String nameStr = name.getText().toString();
         String idCardStr = idCard.getText().toString();
         if (TextUtils.isEmpty(nameStr)) {

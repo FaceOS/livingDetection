@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.renren.faceos.fragment.AuthFragment;
@@ -17,7 +19,7 @@ import com.renren.faceos.utils.PermissionsUtil;
 
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity implements PermissionsUtil.IPermissionsCallback {
+public class MainActivity extends AppCompatActivity implements PermissionsUtil.IPermissionsCallback, View.OnClickListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private PermissionsUtil request;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
     public String name;
     public String idCard;
     public int currentBright;
+    public ImageView commonTitleLeftButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
         step2 = findViewById(R.id.step_2);
         line2 = findViewById(R.id.line_2);
         step3 = findViewById(R.id.step_3);
+        commonTitleLeftButton = findViewById(R.id.common_title_left);
+        commonTitleLeftButton.setOnClickListener(this);
         request = PermissionsUtil
                 .with(this)
                 .requestCode(1)
@@ -49,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
                 .request();
 
         initIdentityFragment();
-//        initAuthFragment();
-//        initDetectFragment();
 
     }
 
@@ -129,5 +132,11 @@ public class MainActivity extends AppCompatActivity implements PermissionsUtil.I
         finish();
     }
 
+    @Override
+    public void onClick(View v) {
+        if (detectFragment != null && detectFragment.isVisible()) {
+            detectFragment.returnIdentityFragment();
+        }
+    }
 }
 

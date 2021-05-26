@@ -103,8 +103,8 @@ public class DetectFragment extends BaseFragment implements
     private TextureView textureView;
     private int liveSize;
     private boolean flag;
-    private String[] actionStart = {"张张嘴", "眨眨眼"};
-    private String[] action = {"缓慢摇头", "缓慢抬头"};
+    private String[] actionEnd = {"眨眨眼"};
+    private String[] action = {"缓慢摇头", "缓慢抬头", "张张嘴"};
     private SensorManagerHelper sensorHelper;
     private long sensorTime;
 
@@ -198,20 +198,17 @@ public class DetectFragment extends BaseFragment implements
         //随机动作
         Random random = new Random();
         List<Integer> indexArray = new ArrayList<>();
-        while (indexArray.size() != 2) {
-            int index = random.nextInt(2);
+        while (indexArray.size() != 3) {
+            int index = random.nextInt(3);
             if (!indexArray.contains(index))
                 indexArray.add(index);
         }
         for (Integer index : indexArray) {
-            live.add(actionStart[index]);
+            live.add(action[index]);
         }
-//        live.remove(2);
-        live.add(1, action[indexArray.get(0)]);
-//        for (String s : live) {
-//            System.out.println(s + "==================");
-//        }
-//        Log.e("TAG", live.size() + "==================");
+        live.remove(2);
+        live.add(2, actionEnd[0]);
+//        live.add(0, action[0]);
         liveSize = live.size();
 
     }
@@ -228,6 +225,9 @@ public class DetectFragment extends BaseFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        if (mFaceDetectRoundView != null) {
+            mFaceDetectRoundView.setTipTopText("把脸移动到框内");
+        }
         startPreview();
     }
 
@@ -389,20 +389,15 @@ public class DetectFragment extends BaseFragment implements
 
     }
 
+    float tmp;
+    boolean faceCheck;
+    long haveFaceTime;
+
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (mIsCompletion) {
             return;
         }
-//        try {
-//            FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(getContext());
-//            Bitmap bitmap = fastYUVtoRGB.convertYUVtoRGB(data, mPreviewWidth, mPreviewHeight);
-//            File takePhotoFile = File.createTempFile("face", ".jpg", getActivity().getCacheDir());
-//            //保存人脸到SD卡
-//            FileUtils.saveFile(takePhotoFile, bitmap);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
         if (!detectionState && faceTracker != null
                 && mFaceDetectRoundView != null && mFaceDetectRoundView.getRound() > 0) {
 
@@ -441,71 +436,40 @@ public class DetectFragment extends BaseFragment implements
 //                    Log.e("CenterJ", (Math.abs(faceCx - 0.5) < 0.1 && Math.abs(faceCy - 0.5) < 0.1 && faceWidthRef > 0.3) + "");
 //                    Log.e("CenterJ", mCenterX+ " XXX " + mCenterY  +" YYY ");
                     //判断人脸中心点
-//                    Log.e("CenterJ", faceCx + " X " + faceCy + " Y ");
+                    Log.e("CenterJ", faceCx + " X " + faceCy + " Y ");
+
+                    //防止闪一下就通过验证
+                    if (System.currentTimeMillis() - haveFaceTime < 1000) {
+                        //动作活体
+                        check(faceRect, yaw, pitch, data);
+                        //控制正脸显示
+                        faceCheck = true;
+                    } else {
+                        faceCheck = false;
+                    }
                     int maxFace = mPreviewWidth / 2 - 100;
                     if (faceRect.width < maxFace && faceRect.height < maxFace) {
-                        if ((faceCx > 0.2 && faceCx < 0.6) && (faceCy > 0.4 && faceCy < 0.6)) {
+                        if ((faceCx > 0.2 && faceCx < 0.55) && (faceCy > 0.4 && faceCy < 0.6)) {
                             if (Math.abs(pitch) > 0) {
-                                if (Math.abs(pitch) < 10) {
-                                    if (Math.abs(yaw) < 10) {
-                                        if (live.size() > 0) {
-                                            Random random = new Random();
-                                            txt = "请" + live.get(0);
-                                            mFaceDetectRoundView.setTipTopText(txt);
-                                            //检测手机摇晃
-                                            if (System.currentTimeMillis() - sensorTime < 500) {
-                                                return;
-                                            }
-                                            switch (live.get(0)) {
-                                                case "张张嘴":
-                                                    if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
-                                                        detectionState = true;
-                                                        live.remove("张张嘴");
-                                                        mFaceDetectRoundView.setTipTopText("非常好");
-                                                        detectionStateSleep();
-                                                    }
-
-                                                    break;
-                                                case "缓慢摇头":
-                                                    if (yaw < -3 || Math.abs(yaw) > 8) {
-                                                        detectionState = true;
-                                                        live.remove("缓慢摇头");
-                                                        mFaceDetectRoundView.setTipTopText("非常好");
-                                                        detectionStateSleep();
-                                                    }
-                                                    break;
-                                                case "缓慢抬头":
-                                                    if (Math.abs(pitch) > 8) {
-                                                        detectionState = true;
-                                                        live.remove("缓慢抬头");
-                                                        mFaceDetectRoundView.setTipTopText("非常好");
-                                                        detectionStateSleep();
-                                                    }
-                                                    break;
-                                                case "眨眨眼":
-                                                    if (faceRect.eyeState == 1 && faceRect.shakeState == 0) {
-                                                        detectionState = true;
-                                                        live.remove("眨眨眼");
-                                                        mFaceDetectRoundView.setTipTopText("非常好");
-                                                        detectionStateSleep();
-                                                    }
-                                                    break;
-                                            }
-                                            mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
-                                            if (live.size() == 0) {
-                                                takePhoto(faceRect, data, mPreviewHeight, mPreviewWidth);
-                                            }
-
-                                        }
+                                if (Math.abs(pitch) < 8) {
+                                    if (Math.abs(yaw) < 8) {
+                                        //记录正脸的时间
+                                        haveFaceTime = System.currentTimeMillis();
                                     } else {
-                                        mFaceDetectRoundView.setTipTopText("请正对手机");
+                                        if (!faceCheck) {
+                                            mFaceDetectRoundView.setTipTopText("请正对手机");
+                                        }
                                     }
 
                                 } else {
-                                    mFaceDetectRoundView.setTipTopText("请正对手机");
+                                    if (!faceCheck) {
+                                        mFaceDetectRoundView.setTipTopText("请正对手机");
+                                    }
                                 }
                             } else {
-                                mFaceDetectRoundView.setTipTopText("请正对手机");
+                                if (!faceCheck) {
+                                    mFaceDetectRoundView.setTipTopText("请正对手机");
+                                }
                             }
                         } else {
                             mFaceDetectRoundView.setTipTopText("把脸移动到框内");
@@ -514,15 +478,16 @@ public class DetectFragment extends BaseFragment implements
                         mFaceDetectRoundView.setTipTopText("请把手机拿远一点");
                     }
 
+
                 } else {
                     //无人脸
                     mFaceDetectRoundView.setTipTopText("未检测到人脸");
-
                 }
 
                 trackingInfo.clear();
                 if (resultData != null) {
                     if (faceTracker != null) {
+                        faceTracker.releaseSession();
                         faceTracker = null;
                     }
                     getMainActivity().initAuthFragment();
@@ -531,6 +496,64 @@ public class DetectFragment extends BaseFragment implements
                 }
             }
 //            detectionState = false;
+
+        }
+    }
+
+    private void check(Face faceRect, float yaw, float pitch, byte[] data) {
+
+        if (live.size() > 0) {
+            txt = "请" + live.get(0);
+            mFaceDetectRoundView.setTipTopText(txt);
+            //检测手机摇晃
+//            if (System.currentTimeMillis() - sensorTime < 1000) {
+//                return;
+//            }
+            switch (live.get(0)) {
+                case "张张嘴":
+                    if (faceRect.mouthState == 1 && faceRect.shakeState == 0) {
+                        detectionState = true;
+                        live.remove("张张嘴");
+                        mFaceDetectRoundView.setTipTopText("非常好");
+                        detectionStateSleep();
+                    }
+
+                    break;
+                case "缓慢摇头":
+                    if (System.currentTimeMillis() - sensorTime < 500) {
+                        return;
+                    }
+                    if (Math.abs(yaw) >= 12) {
+                        detectionState = true;
+                        live.remove("缓慢摇头");
+                        mFaceDetectRoundView.setTipTopText("非常好");
+                        detectionStateSleep();
+                    }
+                    break;
+                case "缓慢抬头":
+                    if (System.currentTimeMillis() - sensorTime < 500) {
+                        return;
+                    }
+                    if (Math.abs(pitch) >= 12) {
+                        detectionState = true;
+                        live.remove("缓慢抬头");
+                        mFaceDetectRoundView.setTipTopText("非常好");
+                        detectionStateSleep();
+                    }
+                    break;
+                case "眨眨眼":
+                    if (faceRect.eyeState == 1) {
+                        detectionState = true;
+                        live.remove("眨眨眼");
+                        mFaceDetectRoundView.setTipTopText("非常好");
+                        detectionStateSleep();
+                    }
+                    break;
+            }
+            mFaceDetectRoundView.setProcessCount(liveSize - live.size(), liveSize);
+            if (live.size() == 0) {
+                takePhoto(faceRect, data, mPreviewHeight, mPreviewWidth);
+            }
 
         }
     }
@@ -570,18 +593,16 @@ public class DetectFragment extends BaseFragment implements
         getMainActivity().initIdentityFragment();
     }
 
-    private File takePhotoFile;
 
     private void takePhoto(Face face, byte[] data, int width, int height) {
         try {
             resultData = data;
             FastYUVtoRGB fastYUVtoRGB = new FastYUVtoRGB(getContext());
-
-            Log.e("TAG", face.left + " " + face.right + " " + face.bottom + " " + face.top);
+//            Log.e("TAG", face.left + " " + face.right + " " + face.bottom + " " + face.top);
             ((MainActivity) getActivity()).faceData = fastYUVtoRGB.convertYUVtoRGB(data, width, height);
-            takePhotoFile = File.createTempFile("face", null, getActivity().getCacheDir());
+//            takePhotoFile = File.createTempFile("face", null, getActivity().getCacheDir());
 //                //保存人脸到SD卡
-            FileUtils.saveFile(takePhotoFile, ((MainActivity) getActivity()).faceData);
+//            FileUtils.saveFile(takePhotoFile, ((MainActivity) getActivity()).faceData);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -700,6 +721,15 @@ public class DetectFragment extends BaseFragment implements
     public void onDestroy() {
         super.onDestroy();
         sensorHelper.stop();
+    }
 
+    public void returnIdentityFragment() {
+        if (faceTracker != null) {
+            faceTracker.releaseSession();
+            faceTracker = null;
+        }
+        getMainActivity().initIdentityFragment();
+        stopPreview();
+        flag = true;
     }
 }

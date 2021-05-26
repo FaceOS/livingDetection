@@ -5,6 +5,7 @@
     android:background="@color/colorPrimaryDark">
 
     <ImageView
+        android:id="@+id/common_title_left"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:gravity="center"

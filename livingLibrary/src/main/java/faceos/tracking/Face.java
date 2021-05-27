@@ -1,5 +1,7 @@
 package faceos.tracking;
 
+import android.graphics.Rect;
+
 public class Face {
 
 
@@ -18,6 +20,8 @@ public class Face {
     public float pitch;
     public float yaw;
     public float roll;
+    public float mCenterX;
+    public float mCenterY;
 
     public boolean isStable;
 
@@ -26,16 +30,17 @@ public class Face {
 
 
     Face(int x1, int y1, int x2, int y2) {
-        left = x1;
+        left =x2;
         top = y1;
-        right = x2;
+        right =  x1;
         bottom = y2;
         height = y2 - y1;
         width = x2 - x1;
         landmarks = new float[106 * 2];
         mouthState = 0;
         eyeState = 0;
-
+        mCenterX = (left + right) / 2;
+        mCenterY = (top + bottom) / 2;
     }
 
 
@@ -55,5 +60,15 @@ public class Face {
         }
         mouthState = 0;
         eyeState = 0;
+    }
+
+    public Rect getFaceRect(float ratioX, float ratioY, float surfaceRatio) {
+        float x = this.mCenterX * ratioX;
+        float y = this.mCenterY * ratioY;
+        Rect rect = new Rect((int)(x - this.width / 2.0F * ratioX * surfaceRatio),
+                (int)(y - this.width / 2.0F * ratioY * surfaceRatio),
+                (int)(x + this.width / 2.0F * ratioX * surfaceRatio),
+                (int)(y + this.width / 2.0F * ratioY * surfaceRatio));
+        return rect;
     }
 }

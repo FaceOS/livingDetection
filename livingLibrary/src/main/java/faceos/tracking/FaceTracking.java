@@ -43,7 +43,7 @@ public class FaceTracking {
         faces = new ArrayList<Face>();
     }
 
-    public void release() {
+    public void releaseSession() {
         releaseSession(session);
     }
 
@@ -60,8 +60,8 @@ public class FaceTracking {
             int[] face_action = getTrackingFaceActionByIndex(i, session);
 //            Log.d("ACTION" , "blink " + face_action[0] + " shake "  + face_action[1]  +  " mouth_open " + face_action[2] + " head_rise " + face_action[3]);
             Face face = new Face(rect[0], rect[1], rect[2], rect[3]);
-            Log.d("ACTION", "Update: .pitch"+ Math.abs(attitudes[0])+ " yaw"+ Math.abs(attitudes[1]) + "" +
-                    "roll "+Math.abs(attitudes[2]));
+//            Log.d("ACTION", "Update: .pitch"+ Math.abs(attitudes[0])+ " yaw"+ Math.abs(attitudes[1]) + "" +
+//                    "roll "+Math.abs(attitudes[2]));
             face.eyeState = face_action[0];
             face.shakeState = face_action[1];
             face.mouthState = face_action[2];

@@ -26,7 +26,7 @@ public class AuthFragmentBAK extends BaseFragment implements AuthDialog.OnAuthDi
 
     private AuthDialog authDialog;
     private String url = "https://49.233.242.197:8313/CreditFunc/v2.1/IdNamePhotoCheck";
-    private String faceImgUrl = "http://api.faceos.com:8181/openapi/facelivenessImg?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
+    private String faceImgUrl = "https://api.faceos.com/openapi/facelivenessImg?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,16 +56,16 @@ public class AuthFragmentBAK extends BaseFragment implements AuthDialog.OnAuthDi
         paramBean.setName(name);
         paramBean.setIdCard(idCard);
         // 图片旋转
-        Bitmap rotateBitmap = FaceUtils.bitmapRotation(faceData, 270);
+//        Bitmap rotateBitmap = FaceUtils.bitmapRotation(faceData, 270);
         // 人脸裁剪
 //        Bitmap cutFace = FaceUtils.faceCut(rotateBitmap, getContext());
         //这里图片可能是空的
-        if (rotateBitmap != null) {
+        if (faceData != null) {
             //图片压缩
-            Bitmap bitmap = BitmapZoomUtils.compressScale(rotateBitmap);
+            Bitmap bitmap = BitmapZoomUtils.compressScale(faceData);
             paramBean.setImage(Base64Utils.bitmapToBase64(bitmap));
             idNamePhoto.setParam(paramBean);
-            facelivenessImg(idNamePhoto, Base64Utils.bitmapToBase64(rotateBitmap));
+            facelivenessImg(idNamePhoto, Base64Utils.bitmapToBase64(faceData));
         } else {
             authDialog.setAuthDialogText("认证失败");
             authDialog.setAuthOutText("重新认证");

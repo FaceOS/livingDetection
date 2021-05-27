@@ -26,8 +26,8 @@ import com.renren.faceos.widget.AuthDialog;
 public class AuthFragment extends BaseFragment implements AuthDialog.OnAuthDialogClickListener {
 
     private AuthDialog authDialog;
-    private String url = "http://api.faceos.com:8181/openapi/IdNamePhotoCheck?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
-    private String faceImgUrl = "http://api.faceos.com:8181/openapi/facelivenessImg?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
+    private String url = "https://api.faceos.com/openapi/IdNamePhotoCheck?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
+    private String faceImgUrl = "https://api.faceos.com/openapi/facelivenessImg?appKey=yn29zKj7YZ&appScrect=a5633c63300146c8d3b87410a2ef2ced";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

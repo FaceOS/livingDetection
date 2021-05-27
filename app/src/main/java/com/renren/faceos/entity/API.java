@@ -11,7 +11,7 @@ public class API {
         return instance;
     }
 
-    private String baseUrl = "http://api.faceos.com:8181";
+    private String baseUrl = "https://api.faceos.com";
     private String IdNamePhotoCheck = "/openapi/IdNamePhotoCheck";
     private String faceLivenessImg = "/openapi/facelivenessImg";
 

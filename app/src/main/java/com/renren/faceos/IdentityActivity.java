@@ -596,12 +596,12 @@ public class IdentityActivity extends AppCompatActivity implements PermissionsUt
             // 图片旋转
             Bitmap rotateBitmap = FaceUtils.bitmapRotation(faceData, 270);
             // 人脸裁剪
-            Bitmap cutFace = FaceUtils.faceCut(rotateBitmap, this);
+//            Bitmap cutFace = FaceUtils.faceCut(rotateBitmap, this);
             Intent intent = getIntent();
             //这里图片可能是空的
-            if (cutFace != null && intent != null) {
+            if (rotateBitmap != null && intent != null) {
                 //图片压缩
-                Bitmap bitmap = BitmapZoomUtils.compressScale(cutFace);
+                Bitmap bitmap = BitmapZoomUtils.compressScale(rotateBitmap);
                 String name = intent.getStringExtra("name");
                 String carNo = intent.getStringExtra("carNo");
                 String appKey = intent.getStringExtra("appKey");
@@ -644,7 +644,7 @@ public class IdentityActivity extends AppCompatActivity implements PermissionsUt
                         if (code == 0) {
                             JSONObject data = jsonObject.getJSONObject("data");
                             Float score = data.getFloat("score");
-                            if (score > 0.8) {
+                            if (score > 0.9) {
                                 //为活体
                                 idNamePhoto.setFaceBase64(Base64Utils.bitmapToBase64(cutFace));
                                 nameIdCardAuth(idNamePhoto, appKey, appScrect);

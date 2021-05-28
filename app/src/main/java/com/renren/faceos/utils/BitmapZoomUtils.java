@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 public class BitmapZoomUtils {
 
 
+
     /**
      * 图片按比例大小压缩方法
      *
@@ -54,7 +55,7 @@ public class BitmapZoomUtils {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         // 判断如果图片大于1M,进行压缩避免在生成图片（BitmapFactory.decodeStream）时溢出
-        if (baos.toByteArray().length / 1024 > 150) {
+        if (baos.toByteArray().length / 1024 > 100) {
             baos.reset();// 重置baos即清空baos
             image.compress(Bitmap.CompressFormat.JPEG, 80, baos);// 这里压缩50%，把压缩后的数据存放到baos中
         }
@@ -69,8 +70,8 @@ public class BitmapZoomUtils {
         // 现在主流手机比较多是800*480分辨率，所以高和宽我们设置为
         // float hh = 800f;// 这里设置高度为800f
         // float ww = 480f;// 这里设置宽度为480f
-        float hh = 200f;
-        float ww = 200f;
+        float hh = 500f;
+        float ww = 500f;
         // 缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
         int be = 1;// be=1表示不缩放
         if (w > h && w > ww) {// 如果宽度大的话根据宽度固定大小缩放
@@ -99,11 +100,11 @@ public class BitmapZoomUtils {
     public static Bitmap compressImage(Bitmap image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);// 质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
-        int options = 90;
+        int options = 99;
         while (baos.toByteArray().length / 1024 > 100) { // 循环判断如果压缩后图片是否大于100kb,大于继续压缩
             baos.reset(); // 重置baos即清空baos
             image.compress(Bitmap.CompressFormat.JPEG, options, baos);// 这里压缩options%，把压缩后的数据存放到baos中
-            options -= 10;// 每次都减少10
+            options -= 1;// 每次都减少10
         }
         ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());// 把压缩后的数据baos存放到ByteArrayInputStream中
         Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);// 把ByteArrayInputStream数据生成图片

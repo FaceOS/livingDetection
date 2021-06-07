@@ -565,7 +565,6 @@ public class IdentityActivity extends AppCompatActivity implements PermissionsUt
         mTimeoutDialog.setCanceledOnTouchOutside(false);
         mTimeoutDialog.setCancelable(false);
         mTimeoutDialog.show();
-        onPause();
     }
 
     @Override

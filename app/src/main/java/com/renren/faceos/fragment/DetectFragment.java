@@ -574,7 +574,6 @@ public class DetectFragment extends BaseFragment implements
         mTimeoutDialog.setCanceledOnTouchOutside(false);
         mTimeoutDialog.setCancelable(false);
         mTimeoutDialog.show();
-        onPause();
     }
 
     @Override
